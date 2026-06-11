@@ -25,6 +25,7 @@ If the system `python` command is unavailable, use `python3` or the helper targe
 make install
 make dev-db
 make test
+make smoke
 make serve
 make frontend
 make worker
@@ -45,6 +46,7 @@ To inspect local tool readiness:
 ```
 
 See [docs/api-examples.md](docs/api-examples.md) for copy-pasteable curl examples covering the core vertical slice.
+See [docs/verification.md](docs/verification.md) for the repeatable proof that the app works.
 
 ## Frontend
 
@@ -97,4 +99,4 @@ The worker currently dispatches `mock_audio_analysis` jobs only. This boundary i
 
 ## Current Boundary
 
-This is backend-only. Real BirdNET/YAMNet adapters, authentication, report export UI, frontend screens, and admin review workflows are intentionally outside this first foundation pass.
+This is a working local MVP demo with a polished frontend and mock processing. Real BirdNET/YAMNet adapters, authentication, report export, production deployment, and scientifically validated biodiversity scoring are intentionally outside this pass.

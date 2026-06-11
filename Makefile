@@ -2,7 +2,7 @@ PYTHON ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: venv install test migrate seed dev-db serve frontend worker clean
+.PHONY: venv install test smoke migrate seed dev-db serve frontend worker clean
 
 venv:
 	$(PYTHON) -m venv $(VENV)
@@ -12,6 +12,9 @@ install: venv
 
 test:
 	$(BIN)/python -m pytest -q
+
+smoke:
+	$(BIN)/python scripts/smoke_app.py
 
 migrate:
 	$(BIN)/alembic -c database/alembic.ini upgrade head

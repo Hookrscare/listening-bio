@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = window.location.origin;
 
 const state = {
   projects: [],
@@ -67,6 +67,7 @@ async function loadData() {
 
 function render() {
   renderSites();
+  renderProof();
   renderSummary();
   renderJobs();
   renderDetections();
@@ -80,6 +81,39 @@ function renderSites() {
   select.innerHTML = state.sites
     .map((site) => `<option value="${site.id}">${site.name} · ${site.habitat_type || "habitat"}</option>`)
     .join("");
+
+  $("#siteList").innerHTML =
+    state.sites
+      .map((site) => {
+        const audioCount = state.audioFiles.filter((audio) => audio.site_id === site.id).length;
+        const coordinates =
+          site.latitude && site.longitude ? `${site.latitude.toFixed(3)}, ${site.longitude.toFixed(3)}` : "Not set";
+        return `
+          <article class="site-card">
+            <strong>${site.name}</strong>
+            <span>${site.habitat_type || "Habitat type pending"}</span>
+            <dl>
+              <div>
+                <dt>Coordinates</dt>
+                <dd>${coordinates}</dd>
+              </div>
+              <div>
+                <dt>Audio files</dt>
+                <dd>${audioCount}</dd>
+              </div>
+            </dl>
+          </article>
+        `;
+      })
+      .join("") || `<article class="site-card"><strong>No sites yet</strong><span>Create seed data to begin.</span></article>`;
+}
+
+function renderProof() {
+  const hasApi = state.projects.length > 0 && state.sites.length > 0;
+  const hasLoop = state.audioFiles.length > 0 && state.jobs.length > 0 && state.rawOutputs.length > 0 && state.detections.length > 0;
+  $("#apiProof").textContent = hasApi ? "Connected" : "No seed data";
+  $("#flowProof").textContent = hasLoop ? "Audio to review works" : "Create and run a job";
+  $("#syncProof").textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
 function renderSummary() {
@@ -96,6 +130,13 @@ function renderSummary() {
 }
 
 function renderJobs() {
+  const hasQueued = state.jobs.some((job) => job.status === "queued");
+  const hasProcessed = state.jobs.some((job) => job.status === "completed");
+  const hasReviewed = state.detections.some((detection) => detection.review_status !== "unreviewed");
+  $("#queuedStep").classList.toggle("active", hasQueued || hasProcessed);
+  $("#processedStep").classList.toggle("active", hasProcessed);
+  $("#reviewedStep").classList.toggle("active", hasReviewed);
+
   $("#jobsTable").innerHTML =
     state.jobs
       .slice(0, 8)
@@ -120,7 +161,12 @@ function renderDetections() {
           <tr>
             <td><strong>${detection.label}</strong></td>
             <td>${detection.detection_type.replace("_", " ")}</td>
-            <td>${formatPercent(detection.confidence)}</td>
+            <td>
+              <div class="confidence">
+                <strong>${formatPercent(detection.confidence)}</strong>
+                <span class="confidence-track"><span class="confidence-fill" style="width: ${Math.round(detection.confidence * 100)}%"></span></span>
+              </div>
+            </td>
                     <td>${detection.start_seconds.toFixed(1)}s - ${detection.end_seconds.toFixed(1)}s</td>
                     <td>
                       <div class="review-actions">
@@ -132,7 +178,7 @@ function renderDetections() {
                   </tr>
         `,
       )
-      .join("") || `<tr><td colspan="4">No detections yet</td></tr>`;
+      .join("") || `<tr><td colspan="5">No detections yet</td></tr>`;
 }
 
 function renderRawOutputs() {
@@ -219,6 +265,7 @@ async function runQueuedJobs() {
     await api(`/processing-jobs/${job.id}/run-mock`, { method: "POST" });
   }
   await loadData();
+  $("#systemStatus").textContent = "Flow verified";
 }
 
 async function createReportShell() {

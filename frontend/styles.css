@@ -5,12 +5,14 @@
   --line: #d9e0dc;
   --paper: #f7f8f4;
   --panel: #ffffff;
+  --panel-soft: rgba(255, 255, 255, 0.72);
   --forest: #144536;
   --moss: #6f8f58;
   --aqua: #2f9c95;
   --gold: #d69b2d;
   --coral: #d96b57;
   --shadow: 0 24px 70px rgba(23, 33, 29, 0.12);
+  --shadow-soft: 0 12px 34px rgba(23, 33, 29, 0.09);
 }
 
 * {
@@ -203,6 +205,34 @@ button {
   box-shadow: var(--shadow);
 }
 
+.visual-caption {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  color: white;
+  background: rgba(8, 19, 15, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.visual-caption span {
+  color: #9ee2d9;
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.visual-caption strong {
+  font-size: 0.9rem;
+}
+
 .acoustic-visual img,
 .acoustic-visual canvas {
   position: absolute;
@@ -290,6 +320,93 @@ button {
   border-bottom: 1px solid var(--line);
 }
 
+.proof-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.proof-card {
+  padding: 16px;
+  border: 1px solid rgba(23, 33, 29, 0.08);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.proof-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.proof-card strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--forest);
+}
+
+.site-band {
+  display: grid;
+  gap: 12px;
+}
+
+.section-title h2 {
+  margin: 0;
+}
+
+.site-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.site-card {
+  min-height: 138px;
+  padding: 16px;
+  border: 1px solid rgba(23, 33, 29, 0.08);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(47, 156, 149, 0.14), transparent 52%),
+    var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.site-card strong,
+.site-card span {
+  display: block;
+}
+
+.site-card strong {
+  font-size: 1rem;
+}
+
+.site-card span {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.site-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 16px 0 0;
+}
+
+.site-card dt {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.site-card dd {
+  margin: 3px 0 0;
+  font-weight: 900;
+}
+
 .workflow-grid,
 .data-grid {
   display: grid;
@@ -309,6 +426,42 @@ button {
   background: #dfe9df;
   font-size: 0.78rem;
   font-weight: 900;
+}
+
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0 10px;
+}
+
+.pipeline-step {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 8px;
+  border-radius: 8px;
+  color: var(--muted);
+  background: #edf2ed;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.pipeline-step span {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #b9c7bf;
+}
+
+.pipeline-step.active {
+  color: #0b4d40;
+  background: #d7eee7;
+}
+
+.pipeline-step.active span {
+  background: var(--aqua);
 }
 
 form {
@@ -375,6 +528,25 @@ td {
   vertical-align: top;
 }
 
+.confidence {
+  display: grid;
+  gap: 6px;
+}
+
+.confidence-track {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e4ebe5;
+}
+
+.confidence-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--aqua), var(--gold));
+}
+
 th {
   color: var(--muted);
   font-size: 0.72rem;
@@ -416,8 +588,8 @@ td {
 }
 
 .review-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 6px;
 }
 
@@ -432,7 +604,7 @@ td {
 }
 
 #detectionsTable td:last-child {
-  min-width: 168px;
+  min-width: 112px;
 }
 
 .raw-list,
@@ -473,7 +645,9 @@ td {
 
   .hero-grid,
   .workflow-grid,
-  .data-grid {
+  .data-grid,
+  .proof-grid,
+  .site-list {
     grid-template-columns: 1fr;
   }
 }
@@ -486,7 +660,8 @@ td {
   .topbar,
   .panel-header,
   .actions,
-  .form-row {
+  .form-row,
+  .visual-caption {
     align-items: stretch;
     flex-direction: column;
   }
@@ -497,5 +672,9 @@ td {
 
   .metric-large strong {
     font-size: 3.2rem;
+  }
+
+  .pipeline {
+    grid-template-columns: 1fr 1fr;
   }
 }

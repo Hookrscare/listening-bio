@@ -33,6 +33,12 @@ def test_frontend_is_served_by_backend(client):
     assert "BioSignal Command" in response.text
 
 
+def test_favicon_does_not_404(client):
+    response = client.get("/favicon.ico")
+
+    assert response.status_code == 204
+
+
 def test_database_metadata_imports():
     from backend.app.models import Base
 
