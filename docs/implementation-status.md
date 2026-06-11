@@ -11,6 +11,7 @@
 - Raw model output traceability before normalized detections
 - Worker boundary for replacing mock processing with real adapters
 - Report shell endpoints for prototype summaries
+- Local SQLite dev bootstrap for demos when Docker/PostGIS is unavailable
 - Backend tests for health, metadata import, seed idempotency, mock processing, summaries, and Alembic configuration
 
 ## Deferred

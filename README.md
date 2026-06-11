@@ -23,9 +23,13 @@ If the system `python` command is unavailable, use `python3` or the helper targe
 
 ```bash
 make install
+make dev-db
 make test
 make serve
+make worker
 ```
+
+`make dev-db` creates and seeds the default local SQLite database for quick development. For the intended PostgreSQL/PostGIS path, use Docker Compose plus Alembic migrations.
 
 On macOS, if `git` fails with an Xcode license message, run Apple’s license flow in Terminal before publishing:
 
@@ -38,6 +42,8 @@ To inspect local tool readiness:
 ```bash
 .venv/bin/python scripts/check_python.py
 ```
+
+See [docs/api-examples.md](docs/api-examples.md) for copy-pasteable curl examples covering the core vertical slice.
 
 ## Useful Endpoints
 
@@ -55,6 +61,20 @@ To inspect local tool readiness:
 - `GET /raw-model-outputs`
 - `POST /reports`
 - `GET /reports`
+
+## Worker
+
+Queued mock jobs can be processed without the API endpoint:
+
+```bash
+make migrate
+make seed
+python -m backend.app.workers.run_pending_jobs --limit 10
+```
+
+For local SQLite development without Docker, use `make dev-db` instead of `make migrate && make seed`.
+
+The worker currently dispatches `mock_audio_analysis` jobs only. This boundary is where BirdNET/YAMNet adapters should plug in later.
 
 ## Current Boundary
 
