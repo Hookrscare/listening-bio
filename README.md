@@ -64,9 +64,11 @@ Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `htt
 - `GET /health`
 - `GET /organizations`
 - `GET /projects`
+- `POST /projects`
 - `GET /projects/{project_id}/summary`
 - `GET /projects/{project_id}/dashboard`
 - `GET /sites`
+- `POST /sites`
 - `GET /sites/{site_id}`
 - `POST /audio-files`
 - `GET /audio-files`

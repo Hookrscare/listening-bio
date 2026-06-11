@@ -211,6 +211,43 @@ def test_project_dashboard_contract(client, db_session):
     assert body["top_species"][0]["label"] == "American Robin"
 
 
+def test_create_project_endpoint(client, db_session):
+    organization = db_session.scalar(select(Organization))
+
+    response = client.post(
+        "/projects",
+        json={
+            "organization_id": organization.id,
+            "name": "Wetland Recovery Pilot",
+            "description": "New field project created from the UI.",
+        },
+    )
+
+    assert response.status_code == 201
+    assert response.json()["name"] == "Wetland Recovery Pilot"
+    assert response.json()["status"] == "active"
+
+
+def test_create_site_endpoint(client, db_session):
+    project = db_session.scalar(select(Project))
+
+    response = client.post(
+        "/sites",
+        json={
+            "project_id": project.id,
+            "name": "North Meadow",
+            "habitat_type": "restored grassland",
+            "latitude": 40.72,
+            "longitude": -74.01,
+        },
+    )
+
+    assert response.status_code == 201
+    assert response.json()["name"] == "North Meadow"
+    site = db_session.get(Site, response.json()["id"])
+    assert site.location_geom_wkt == "POINT(-74.01 40.72)"
+
+
 def test_scoped_filters_and_detail_endpoints(client, db_session):
     project = db_session.scalar(select(Project))
     site = db_session.scalar(select(Site))

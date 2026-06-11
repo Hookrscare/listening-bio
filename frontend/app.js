@@ -1,7 +1,9 @@
 const API_BASE = window.location.origin;
 
 const state = {
+  organizations: [],
   projects: [],
+  selectedProjectId: null,
   sites: [],
   audioFiles: [],
   jobs: [],
@@ -36,7 +38,8 @@ function shortId(id) {
 
 async function loadData() {
   $("#systemStatus").textContent = "Syncing API";
-  const [projects, sites, audioFiles, jobs, detections, rawOutputs, reports] = await Promise.all([
+  const [organizations, projects, sites, audioFiles, jobs, detections, rawOutputs, reports] = await Promise.all([
+    api("/organizations"),
     api("/projects"),
     api("/sites"),
     api("/audio-files"),
@@ -46,14 +49,18 @@ async function loadData() {
     api("/reports"),
   ]);
 
+  state.organizations = organizations;
   state.projects = projects;
+  if (!state.selectedProjectId || !projects.some((project) => project.id === state.selectedProjectId)) {
+    state.selectedProjectId = projects[0]?.id || null;
+  }
   state.sites = sites;
   state.audioFiles = audioFiles;
   state.jobs = jobs;
   state.detections = detections;
   state.rawOutputs = rawOutputs;
   state.reports = reports;
-  state.dashboard = projects[0] ? await api(`/projects/${projects[0].id}/dashboard`) : null;
+  state.dashboard = state.selectedProjectId ? await api(`/projects/${state.selectedProjectId}/dashboard`) : null;
   state.summary = state.dashboard?.summary || null;
   if (state.dashboard) {
     state.sites = state.dashboard.sites;
@@ -66,6 +73,7 @@ async function loadData() {
 }
 
 function render() {
+  renderProjects();
   renderSites();
   renderProof();
   renderSummary();
@@ -76,11 +84,25 @@ function render() {
   drawSpectrogram();
 }
 
+function renderProjects() {
+  const select = $("#projectSelect");
+  select.innerHTML = state.projects
+    .map((project) => `<option value="${project.id}" ${project.id === state.selectedProjectId ? "selected" : ""}>${project.name}</option>`)
+    .join("");
+}
+
 function renderSites() {
   const select = $("#siteSelect");
   select.innerHTML = state.sites
     .map((site) => `<option value="${site.id}">${site.name} · ${site.habitat_type || "habitat"}</option>`)
     .join("");
+  select.disabled = state.sites.length === 0;
+  $("#createAudioButton").disabled = state.sites.length === 0;
+  if (state.sites.length === 0) {
+    $("#formStatus").textContent = "Add a site before registering audio.";
+  } else if ($("#formStatus").textContent === "Add a site before registering audio.") {
+    $("#formStatus").textContent = "";
+  }
 
   $("#siteList").innerHTML =
     state.sites
@@ -105,7 +127,7 @@ function renderSites() {
           </article>
         `;
       })
-      .join("") || `<article class="site-card"><strong>No sites yet</strong><span>Create seed data to begin.</span></article>`;
+      .join("") || `<article class="site-card"><strong>No sites yet</strong><span>Add a site to activate survey intake.</span></article>`;
 }
 
 function renderProof() {
@@ -242,6 +264,10 @@ async function createAudioRecord(event) {
   event.preventDefault();
   const form = new FormData(event.currentTarget);
   const payload = Object.fromEntries(form.entries());
+  if (!payload.site_id) {
+    $("#formStatus").textContent = "Add a site before registering audio.";
+    return;
+  }
   payload.duration_seconds = Number(payload.duration_seconds || 0);
 
   $("#formStatus").textContent = "Creating audio record";
@@ -251,6 +277,44 @@ async function createAudioRecord(event) {
   });
   $("#formStatus").textContent = `Audio ${shortId(audio.id)} queued`;
   await loadData();
+}
+
+async function createProject(event) {
+  event.preventDefault();
+  const organization = state.organizations[0];
+  if (!organization) {
+    $("#systemStatus").textContent = "No organization available";
+    return;
+  }
+  const form = new FormData(event.currentTarget);
+  const payload = Object.fromEntries(form.entries());
+  payload.organization_id = organization.id;
+  const project = await api("/projects", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  state.selectedProjectId = project.id;
+  await loadData();
+  $("#systemStatus").textContent = `Project ${project.name} created`;
+}
+
+async function createSite(event) {
+  event.preventDefault();
+  if (!state.selectedProjectId) {
+    $("#systemStatus").textContent = "Create a project first";
+    return;
+  }
+  const form = new FormData(event.currentTarget);
+  const payload = Object.fromEntries(form.entries());
+  payload.project_id = state.selectedProjectId;
+  payload.latitude = payload.latitude ? Number(payload.latitude) : null;
+  payload.longitude = payload.longitude ? Number(payload.longitude) : null;
+  const site = await api("/sites", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  await loadData();
+  $("#systemStatus").textContent = `Site ${site.name} created`;
 }
 
 async function runQueuedJobs() {
@@ -283,6 +347,12 @@ async function createReportShell() {
 
 function bindEvents() {
   $("#refreshButton").addEventListener("click", loadData);
+  $("#projectSelect").addEventListener("change", async (event) => {
+    state.selectedProjectId = event.target.value;
+    await loadData();
+  });
+  $("#projectForm").addEventListener("submit", createProject);
+  $("#siteForm").addEventListener("submit", createSite);
   $("#runJobsButton").addEventListener("click", runQueuedJobs);
   $("#audioForm").addEventListener("submit", createAudioRecord);
   $("#createReportButton").addEventListener("click", createReportShell);

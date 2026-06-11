@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from backend.app.db.session import get_db
 from backend.app.main import app
-from backend.app.models import Base, Detection, ProcessingJob, Project, Site
+from backend.app.models import Base, Detection, ProcessingJob
 from database.seed.seed_data import seed
 from fastapi.testclient import TestClient
 
@@ -39,17 +39,41 @@ def main() -> int:
     client = TestClient(app)
 
     try:
-        project = db.scalar(select(Project))
-        site = db.scalar(select(Site))
         checks: list[str] = []
 
         assert client.get("/health").json()["status"] == "ok"
         checks.append("health endpoint")
 
+        org_id = client.get("/organizations").json()[0]["id"]
+        project_response = client.post(
+            "/projects",
+            json={
+                "organization_id": org_id,
+                "name": "Smoke Wetland Pilot",
+                "description": "Smoke-created project.",
+            },
+        )
+        assert project_response.status_code == 201
+        project_id = project_response.json()["id"]
+        checks.append("project creation")
+
+        site_response = client.post(
+            "/sites",
+            json={
+                "project_id": project_id,
+                "name": "Smoke Meadow",
+                "habitat_type": "restored meadow",
+                "latitude": 40.72,
+                "longitude": -74.01,
+            },
+        )
+        assert site_response.status_code == 201
+        checks.append("site creation")
+
         audio_response = client.post(
             "/audio-files",
             json={
-                "site_id": site.id,
+                "site_id": site_response.json()["id"],
                 "file_name": "smoke-survey.wav",
                 "storage_uri": "s3://prototype-audio/smoke-survey.wav",
                 "duration_seconds": 12.4,
@@ -65,7 +89,7 @@ def main() -> int:
         assert run_response.json()["status"] == "completed"
         checks.append("mock processing completes")
 
-        detections = client.get(f"/detections?project_id={project.id}").json()
+        detections = client.get(f"/detections?project_id={project_id}").json()
         assert len(detections) >= 2
         checks.append("detections are stored")
 
@@ -76,12 +100,12 @@ def main() -> int:
 
         report_response = client.post(
             "/reports",
-            json={"project_id": project.id, "title": "Smoke Prototype Report", "report_type": "prototype_summary"},
+            json={"project_id": project_id, "title": "Smoke Prototype Report", "report_type": "prototype_summary"},
         )
         assert report_response.status_code == 201
         checks.append("report shell creation")
 
-        dashboard = client.get(f"/projects/{project.id}/dashboard").json()
+        dashboard = client.get(f"/projects/{project_id}/dashboard").json()
         assert dashboard["summary"]["detection_count"] >= 2
         assert dashboard["recent_detections"]
         checks.append("dashboard aggregate")

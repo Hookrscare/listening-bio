@@ -13,12 +13,14 @@ from backend.app.schemas.api import (
     OrganizationRead,
     ProcessingJobCreate,
     ProcessingJobRead,
+    ProjectCreate,
     ProjectDashboard,
     ProjectRead,
     ProjectSummary,
     RawModelOutputRead,
     ReportCreate,
     ReportRead,
+    SiteCreate,
     SiteRead,
 )
 from backend.app.services.mock_processing import ensure_processing_job
@@ -41,6 +43,20 @@ def list_organizations(db: Session = Depends(get_db)) -> list[Organization]:
 @router.get("/projects", response_model=list[ProjectRead])
 def list_projects(db: Session = Depends(get_db)) -> list[Project]:
     return list(db.scalars(select(Project).order_by(Project.name)))
+
+
+@router.post("/projects", response_model=ProjectRead, status_code=201)
+def create_project(payload: ProjectCreate, db: Session = Depends(get_db)) -> Project:
+    organization = db.get(Organization, payload.organization_id)
+    if organization is None:
+        raise HTTPException(status_code=404, detail="Organization not found.")
+    if payload.status not in {"active", "paused", "archived"}:
+        raise HTTPException(status_code=400, detail="Invalid project status.")
+    project = Project(**payload.model_dump())
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+    return project
 
 
 @router.get("/projects/{project_id}", response_model=ProjectRead)
@@ -118,6 +134,20 @@ def list_sites(project_id: str | None = None, db: Session = Depends(get_db)) -> 
     if project_id:
         query = query.where(Site.project_id == project_id)
     return list(db.scalars(query.order_by(Site.name)))
+
+
+@router.post("/sites", response_model=SiteRead, status_code=201)
+def create_site(payload: SiteCreate, db: Session = Depends(get_db)) -> Site:
+    project = db.get(Project, payload.project_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
+    site = Site(**payload.model_dump())
+    if site.latitude is not None and site.longitude is not None:
+        site.location_geom_wkt = f"POINT({site.longitude} {site.latitude})"
+    db.add(site)
+    db.commit()
+    db.refresh(site)
+    return site
 
 
 @router.get("/sites/{site_id}", response_model=SiteRead)

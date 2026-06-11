@@ -163,6 +163,37 @@ button {
   gap: 10px;
 }
 
+.project-command {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.8fr);
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(23, 33, 29, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-soft);
+}
+
+.project-form,
+.site-form {
+  display: grid;
+  align-items: end;
+  gap: 10px;
+}
+
+.project-form {
+  grid-template-columns: minmax(180px, 0.8fr) minmax(220px, 1.2fr) auto;
+}
+
+.site-form {
+  grid-template-columns: minmax(150px, 0.9fr) minmax(150px, 0.9fr) minmax(110px, 0.65fr) minmax(110px, 0.65fr) auto;
+  padding: 14px;
+  border: 1px solid rgba(23, 33, 29, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-soft);
+}
+
 .primary,
 .ghost {
   min-height: 42px;
@@ -647,7 +678,10 @@ td {
   .workflow-grid,
   .data-grid,
   .proof-grid,
-  .site-list {
+  .site-list,
+  .project-command,
+  .project-form,
+  .site-form {
     grid-template-columns: 1fr;
   }
 }

@@ -23,6 +23,13 @@ class ProjectRead(BaseModel):
     created_at: datetime
 
 
+class ProjectCreate(BaseModel):
+    organization_id: str
+    name: str
+    description: str | None = None
+    status: str = "active"
+
+
 class SiteRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -33,6 +40,14 @@ class SiteRead(BaseModel):
     latitude: float | None = None
     longitude: float | None = None
     created_at: datetime
+
+
+class SiteCreate(BaseModel):
+    project_id: str
+    name: str
+    habitat_type: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
 
 class AudioFileCreate(BaseModel):

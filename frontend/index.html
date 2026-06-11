@@ -38,6 +38,26 @@
           </div>
         </header>
 
+        <section class="project-command">
+          <div class="project-picker">
+            <label>
+              Active project
+              <select id="projectSelect"></select>
+            </label>
+          </div>
+          <form class="project-form" id="projectForm">
+            <label>
+              New project
+              <input name="name" value="Wetland Recovery Pilot" required />
+            </label>
+            <label>
+              Description
+              <input name="description" value="Acoustic biodiversity monitoring for a new habitat site." />
+            </label>
+            <button class="ghost" type="submit">Create project</button>
+          </form>
+        </section>
+
         <section class="hero-grid" id="overview">
           <div class="acoustic-visual" aria-label="Acoustic activity visualization">
             <img src="./assets/acoustic-landscape.svg" alt="Layered acoustic landscape with habitat, waveform, and detection markers" />
@@ -95,6 +115,25 @@
             <p class="eyebrow">Site Explorer</p>
             <h2>Monitored habitats</h2>
           </div>
+          <form class="site-form" id="siteForm">
+            <label>
+              Site name
+              <input name="name" value="North Meadow" required />
+            </label>
+            <label>
+              Habitat
+              <input name="habitat_type" value="restored meadow" />
+            </label>
+            <label>
+              Latitude
+              <input name="latitude" type="number" step="0.000001" value="40.720000" />
+            </label>
+            <label>
+              Longitude
+              <input name="longitude" type="number" step="0.000001" value="-74.010000" />
+            </label>
+            <button class="ghost" type="submit">Add site</button>
+          </form>
           <div class="site-list" id="siteList"></div>
         </section>
 
@@ -129,7 +168,7 @@
                 <input name="idempotency_key" value="morning-canopy-001" />
               </label>
             </div>
-            <button class="primary wide" type="submit">Create audio record</button>
+            <button class="primary wide" id="createAudioButton" type="submit">Create audio record</button>
             <p class="form-status" id="formStatus"></p>
           </form>
 
