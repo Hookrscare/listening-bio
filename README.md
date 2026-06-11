@@ -1,0 +1,61 @@
+# AI Biodiversity Backend
+
+Backend foundation for the first MVP slice: project, site, audio metadata, mock processing jobs, normalized detections, seed data, and prototype dashboard summaries.
+The validated v1 spine is `organization -> project -> site -> audio_file -> processing_job -> raw_model_output -> detection`; grant and partner objects are prototype shells.
+
+## Setup
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+cp .env.example .env
+docker compose up -d
+alembic -c database/alembic.ini upgrade head
+python -m database.seed.seed_data
+pytest
+uvicorn backend.app.main:app --reload
+```
+
+The API starts at `http://127.0.0.1:8000`.
+
+If the system `python` command is unavailable, use `python3` or the helper targets:
+
+```bash
+make install
+make test
+make serve
+```
+
+On macOS, if `git` fails with an Xcode license message, run Apple’s license flow in Terminal before publishing:
+
+```bash
+sudo xcodebuild -license
+```
+
+To inspect local tool readiness:
+
+```bash
+.venv/bin/python scripts/check_python.py
+```
+
+## Useful Endpoints
+
+- `GET /health`
+- `GET /organizations`
+- `GET /projects`
+- `GET /projects/{project_id}/summary`
+- `GET /sites`
+- `POST /audio-files`
+- `GET /audio-files`
+- `POST /processing-jobs`
+- `GET /processing-jobs`
+- `POST /processing-jobs/{job_id}/run-mock`
+- `GET /detections`
+- `GET /raw-model-outputs`
+- `POST /reports`
+- `GET /reports`
+
+## Current Boundary
+
+This is backend-only. Real BirdNET/YAMNet adapters, authentication, report export UI, frontend screens, and admin review workflows are intentionally outside this first foundation pass.
