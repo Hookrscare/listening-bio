@@ -5,8 +5,18 @@ from backend.app.models import AIModel, AudioFile, Detection, ProcessingJob, Raw
 from backend.app.services.job_state import sync_audio_status, transition_job
 
 
-def ensure_processing_job(db: Session, audio_file: AudioFile) -> ProcessingJob:
-    job = ProcessingJob(audio_file_id=audio_file.id, status="queued", job_type="mock_audio_analysis")
+def ensure_processing_job(db: Session, audio_file: AudioFile, job_type: str = "mock_audio_analysis") -> ProcessingJob:
+    existing = db.scalar(
+        select(ProcessingJob).where(
+            ProcessingJob.audio_file_id == audio_file.id,
+            ProcessingJob.job_type == job_type,
+            ProcessingJob.status.in_(["queued", "running", "completed"]),
+        )
+    )
+    if existing is not None:
+        return existing
+
+    job = ProcessingJob(audio_file_id=audio_file.id, status="queued", job_type=job_type)
     db.add(job)
     sync_audio_status(audio_file, job.status)
     db.commit()

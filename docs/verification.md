@@ -15,12 +15,15 @@ make smoke
 2. Create a project
 3. Create a site
 4. Create audio metadata
-5. Create and run a mock processing job
-6. Store raw model output and normalized detections
-7. Confirm a detection
-8. Create a report shell
-9. Read the project dashboard aggregate
-10. Confirm the frontend is served at `/app/`
+5. Upload a WAV file and queue a BirdNET adapter job
+6. Create and run a mock processing job
+7. Run BirdNET adapter processing
+8. Store raw model output and normalized detections
+9. Confirm a detection
+10. Create a report shell
+11. Read the project dashboard aggregate and prototype metrics
+12. Export detections as CSV
+13. Confirm the frontend is served at `/app/`
 
 ## Manual UI Check
 
@@ -41,9 +44,10 @@ Then verify:
 - The proof cards show `Connected`.
 - Create a project.
 - Add a site to that project.
-- Create an audio record.
+- Upload a WAV file or create an audio metadata record.
 - Click `Run queued jobs`.
 - Confirm or reject a detection.
+- Export detections as CSV.
 - Create a report shell.
 - Refresh and confirm the counts persist.
 

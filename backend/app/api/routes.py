@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+import csv
+from io import StringIO
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Response, UploadFile
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -8,6 +11,7 @@ from backend.app.models import AudioFile, Detection, Organization, ProcessingJob
 from backend.app.schemas.api import (
     AudioFileCreate,
     AudioFileRead,
+    BiodiversityMetrics,
     DetectionRead,
     DetectionUpdate,
     OrganizationRead,
@@ -23,8 +27,9 @@ from backend.app.schemas.api import (
     SiteCreate,
     SiteRead,
 )
+from backend.app.services.audio_storage import save_uploaded_wav
 from backend.app.services.mock_processing import ensure_processing_job
-from backend.app.services.summaries import get_project_summary
+from backend.app.services.summaries import get_biodiversity_metrics, get_project_summary
 from backend.app.workers.processing_worker import run_job_once
 
 router = APIRouter()
@@ -75,6 +80,14 @@ def project_summary(project_id: str, db: Session = Depends(get_db)) -> ProjectSu
     return summary
 
 
+@router.get("/projects/{project_id}/metrics", response_model=BiodiversityMetrics)
+def biodiversity_metrics(project_id: str, db: Session = Depends(get_db)) -> BiodiversityMetrics:
+    metrics = get_biodiversity_metrics(db, project_id)
+    if metrics is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
+    return metrics
+
+
 @router.get("/projects/{project_id}/dashboard", response_model=ProjectDashboard)
 def project_dashboard(project_id: str, db: Session = Depends(get_db)) -> ProjectDashboard:
     project = db.get(Project, project_id)
@@ -120,6 +133,7 @@ def project_dashboard(project_id: str, db: Session = Depends(get_db)) -> Project
     return ProjectDashboard(
         project=project,
         summary=summary,
+        metrics=get_biodiversity_metrics(db, project_id),
         sites=sites,
         recent_audio_files=recent_audio_files,
         recent_detections=recent_detections,
@@ -178,6 +192,47 @@ def create_audio_file(payload: AudioFileCreate, db: Session = Depends(get_db)) -
     db.add(audio_file)
     db.flush()
     ensure_processing_job(db, audio_file)
+    db.refresh(audio_file)
+    return audio_file
+
+
+@router.post("/audio-files/upload", response_model=AudioFileRead, status_code=201)
+async def upload_audio_file(
+    site_id: str = Form(...),
+    duration_seconds: float | None = Form(default=None),
+    recorded_at: str | None = Form(default=None),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+) -> AudioFile:
+    site = db.get(Site, site_id)
+    if site is None:
+        raise HTTPException(status_code=404, detail="Site not found.")
+
+    stored = await save_uploaded_wav(file, site_id)
+    idempotency_key = f"sha256:{stored.sha256}"
+    existing = db.scalar(
+        select(AudioFile).where(AudioFile.site_id == site_id, AudioFile.idempotency_key == idempotency_key)
+    )
+    if existing is not None:
+        ensure_processing_job(db, existing, job_type="birdnet_analysis")
+        return existing
+
+    from datetime import datetime
+
+    parsed_recorded_at = datetime.fromisoformat(recorded_at) if recorded_at else None
+    audio_file = AudioFile(
+        site_id=site_id,
+        file_name=stored.file_name,
+        idempotency_key=idempotency_key,
+        storage_uri=stored.storage_uri,
+        content_type=stored.content_type,
+        duration_seconds=duration_seconds,
+        recorded_at=parsed_recorded_at,
+        status="uploaded",
+    )
+    db.add(audio_file)
+    db.flush()
+    ensure_processing_job(db, audio_file, job_type="birdnet_analysis")
     db.refresh(audio_file)
     return audio_file
 
@@ -320,3 +375,109 @@ def get_report(report_id: str, db: Session = Depends(get_db)) -> Report:
     if report is None:
         raise HTTPException(status_code=404, detail="Report not found.")
     return report
+
+
+def _csv_response(filename: str, rows: list[dict[str, object]], fieldnames: list[str]) -> Response:
+    buffer = StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(rows)
+    return Response(
+        content=buffer.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.get("/exports/detections.csv")
+def export_detections_csv(project_id: str, db: Session = Depends(get_db)) -> Response:
+    rows = db.execute(
+        select(Project, Site, AudioFile, Detection)
+        .join(Site, Site.project_id == Project.id)
+        .join(AudioFile, AudioFile.site_id == Site.id)
+        .join(Detection, Detection.audio_file_id == AudioFile.id)
+        .where(Project.id == project_id)
+        .order_by(Detection.created_at.desc())
+    ).all()
+    return _csv_response(
+        "detections.csv",
+        [
+            {
+                "project_id": project.id,
+                "project_name": project.name,
+                "site_id": site.id,
+                "site_name": site.name,
+                "audio_file_id": audio_file.id,
+                "file_name": audio_file.file_name,
+                "detection_id": detection.id,
+                "label": detection.label,
+                "detection_type": detection.detection_type,
+                "confidence": detection.confidence,
+                "start_seconds": detection.start_seconds,
+                "end_seconds": detection.end_seconds,
+                "review_status": detection.review_status,
+                "created_at": detection.created_at.isoformat(),
+            }
+            for project, site, audio_file, detection in rows
+        ],
+        [
+            "project_id",
+            "project_name",
+            "site_id",
+            "site_name",
+            "audio_file_id",
+            "file_name",
+            "detection_id",
+            "label",
+            "detection_type",
+            "confidence",
+            "start_seconds",
+            "end_seconds",
+            "review_status",
+            "created_at",
+        ],
+    )
+
+
+@router.get("/exports/sites.csv")
+def export_sites_csv(project_id: str, db: Session = Depends(get_db)) -> Response:
+    sites = list(db.scalars(select(Site).where(Site.project_id == project_id).order_by(Site.name)))
+    return _csv_response(
+        "sites.csv",
+        [
+            {
+                "site_id": site.id,
+                "project_id": site.project_id,
+                "name": site.name,
+                "habitat_type": site.habitat_type or "",
+                "latitude": site.latitude or "",
+                "longitude": site.longitude or "",
+                "created_at": site.created_at.isoformat(),
+            }
+            for site in sites
+        ],
+        ["site_id", "project_id", "name", "habitat_type", "latitude", "longitude", "created_at"],
+    )
+
+
+@router.get("/exports/audio-files.csv")
+def export_audio_files_csv(project_id: str, db: Session = Depends(get_db)) -> Response:
+    audio_files = list(
+        db.scalars(select(AudioFile).join(Site).where(Site.project_id == project_id).order_by(AudioFile.created_at.desc()))
+    )
+    return _csv_response(
+        "audio-files.csv",
+        [
+            {
+                "audio_file_id": audio_file.id,
+                "site_id": audio_file.site_id,
+                "file_name": audio_file.file_name,
+                "storage_uri": audio_file.storage_uri,
+                "duration_seconds": audio_file.duration_seconds or "",
+                "status": audio_file.status,
+                "created_at": audio_file.created_at.isoformat(),
+            }
+            for audio_file in audio_files
+        ],
+        ["audio_file_id", "site_id", "file_name", "storage_uri", "duration_seconds", "status", "created_at"],
+    )

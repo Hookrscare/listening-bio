@@ -1,6 +1,6 @@
 # AI Biodiversity Backend
 
-Backend foundation for the first MVP slice: project, site, audio metadata, mock processing jobs, normalized detections, seed data, and prototype dashboard summaries.
+Backend foundation for the first MVP slice: project, site, WAV upload, local audio storage, processing jobs, BirdNET-ready adapter processing, normalized detections, seed data, CSV exports, and prototype dashboard summaries.
 The validated v1 spine is `organization -> project -> site -> audio_file -> processing_job -> raw_model_output -> detection`; grant and partner objects are prototype shells.
 
 ## Setup
@@ -57,7 +57,19 @@ make dev-db
 make serve
 ```
 
-Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `http://127.0.0.1:8000` and supports project overview, audio metadata intake, queued mock processing, detection review, raw model traceability, and report shell creation.
+Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `http://127.0.0.1:8000` and supports project overview, WAV/audio metadata intake, queued processing, detection review, raw model traceability, CSV export, and report shell creation.
+
+Use the Survey Intake file picker to upload a local `.wav`; this queues a `birdnet_analysis` job. Without a configured BirdNET command, the adapter stores clearly marked simulated BirdNET-style detections so the workflow remains testable.
+
+## BirdNET Adapter
+
+The app is ready for a real BirdNET command without changing the API or database architecture. Set `BIRDNET_COMMAND` to a command template that accepts `{input}` and writes JSON to `{output}`:
+
+```bash
+export BIRDNET_COMMAND='python /path/to/BirdNET-Analyzer/analyze.py --i {input} --o {output}'
+```
+
+Until that variable is configured, `birdnet_analysis` jobs run in `simulated` mode and write the mode into `raw_model_outputs.payload`. See [docs/birdnet-integration.md](docs/birdnet-integration.md).
 
 ## Useful Endpoints
 
@@ -66,11 +78,13 @@ Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `htt
 - `GET /projects`
 - `POST /projects`
 - `GET /projects/{project_id}/summary`
+- `GET /projects/{project_id}/metrics`
 - `GET /projects/{project_id}/dashboard`
 - `GET /sites`
 - `POST /sites`
 - `GET /sites/{site_id}`
 - `POST /audio-files`
+- `POST /audio-files/upload`
 - `GET /audio-files`
 - `GET /audio-files/{audio_file_id}`
 - `POST /processing-jobs`
@@ -84,10 +98,13 @@ Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `htt
 - `POST /reports`
 - `GET /reports`
 - `GET /reports/{report_id}`
+- `GET /exports/detections.csv?project_id={project_id}`
+- `GET /exports/sites.csv?project_id={project_id}`
+- `GET /exports/audio-files.csv?project_id={project_id}`
 
 ## Worker
 
-Queued mock jobs can be processed without the API endpoint:
+Queued mock and BirdNET adapter jobs can be processed without the API endpoint:
 
 ```bash
 make migrate
@@ -97,8 +114,8 @@ python -m backend.app.workers.run_pending_jobs --limit 10
 
 For local SQLite development without Docker, use `make dev-db` instead of `make migrate && make seed`.
 
-The worker currently dispatches `mock_audio_analysis` jobs only. This boundary is where BirdNET/YAMNet adapters should plug in later.
+The worker dispatches `mock_audio_analysis` and `birdnet_analysis` jobs.
 
 ## Current Boundary
 
-This is a working local MVP demo with a polished frontend and mock processing. Real BirdNET/YAMNet adapters, authentication, report export, production deployment, and scientifically validated biodiversity scoring are intentionally outside this pass.
+This is a working local MVP demo with a polished frontend, real WAV upload, local file storage, CSV export, and a BirdNET-ready processing boundary. Real BirdNET installation, YAMNet adapters, authentication, PDF export, production deployment, and scientifically validated biodiversity scoring are intentionally outside this pass.

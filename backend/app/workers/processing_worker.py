@@ -1,13 +1,19 @@
 from sqlalchemy.orm import Session
 
 from backend.app.models import ProcessingJob
+from backend.app.services.birdnet_processing import run_birdnet_processing
 from backend.app.services.mock_processing import run_mock_processing
 
 
 def run_job_once(db: Session, job: ProcessingJob) -> ProcessingJob:
-    if job.job_type != "mock_audio_analysis":
+    processors = {
+        "mock_audio_analysis": run_mock_processing,
+        "birdnet_analysis": run_birdnet_processing,
+    }
+    processor = processors.get(job.job_type)
+    if processor is None:
         raise ValueError(f"Unsupported processing job type: {job.job_type}")
-    return run_mock_processing(db, job)
+    return processor(db, job)
 
 
 def run_pending_jobs(db: Session, limit: int = 10) -> list[ProcessingJob]:
@@ -19,4 +25,3 @@ def run_pending_jobs(db: Session, limit: int = 10) -> list[ProcessingJob]:
         .all()
     )
     return [run_job_once(db, job) for job in jobs]
-

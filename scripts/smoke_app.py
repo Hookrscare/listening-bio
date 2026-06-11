@@ -17,6 +17,14 @@ from database.seed.seed_data import seed
 from fastapi.testclient import TestClient
 
 
+def tiny_wav_bytes() -> bytes:
+    return (
+        b"RIFF$\x00\x00\x00WAVEfmt "
+        b"\x10\x00\x00\x00\x01\x00\x01\x00@\x1f\x00\x00@\x1f\x00\x00\x01\x00\x08\x00"
+        b"data\x00\x00\x00\x00"
+    )
+
+
 def main() -> int:
     engine = create_engine(
         "sqlite+pysqlite:///:memory:",
@@ -83,11 +91,25 @@ def main() -> int:
         assert audio_response.status_code == 201
         checks.append("audio metadata creates queued job")
 
+        upload_response = client.post(
+            "/audio-files/upload",
+            data={"site_id": site_response.json()["id"], "duration_seconds": "18.0"},
+            files={"file": ("smoke-upload.wav", tiny_wav_bytes(), "audio/wav")},
+        )
+        assert upload_response.status_code == 201
+        checks.append("WAV upload creates BirdNET job")
+
         job = db.scalar(select(ProcessingJob).where(ProcessingJob.audio_file_id == audio_response.json()["id"]))
         run_response = client.post(f"/processing-jobs/{job.id}/run-mock")
         assert run_response.status_code == 200
         assert run_response.json()["status"] == "completed"
         checks.append("mock processing completes")
+
+        birdnet_job = db.scalar(select(ProcessingJob).where(ProcessingJob.audio_file_id == upload_response.json()["id"]))
+        birdnet_response = client.post(f"/processing-jobs/{birdnet_job.id}/run-mock")
+        assert birdnet_response.status_code == 200
+        assert birdnet_response.json()["status"] == "completed"
+        checks.append("BirdNET adapter processing completes")
 
         detections = client.get(f"/detections?project_id={project_id}").json()
         assert len(detections) >= 2
@@ -107,8 +129,14 @@ def main() -> int:
 
         dashboard = client.get(f"/projects/{project_id}/dashboard").json()
         assert dashboard["summary"]["detection_count"] >= 2
+        assert dashboard["metrics"]["species_richness"] >= 1
         assert dashboard["recent_detections"]
         checks.append("dashboard aggregate")
+
+        csv_response = client.get(f"/exports/detections.csv?project_id={project_id}")
+        assert csv_response.status_code == 200
+        assert "American Robin" in csv_response.text
+        checks.append("CSV export")
 
         assert "BioSignal Command" in client.get("/app/").text
         checks.append("frontend served")

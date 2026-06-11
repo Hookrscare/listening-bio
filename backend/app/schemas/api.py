@@ -155,9 +155,21 @@ class ProjectSummary(BaseModel):
     metric_label: str = "prototype_indicator"
 
 
+class BiodiversityMetrics(BaseModel):
+    project_id: str
+    recording_hours: float
+    species_richness: int
+    detections_per_hour: float
+    confirmed_detection_percent: float
+    species_diversity_shannon: float
+    metric_label: str = "prototype_indicator"
+    note: str = "Prototype indicators only; not scientifically validated scores."
+
+
 class ProjectDashboard(BaseModel):
     project: ProjectRead
     summary: ProjectSummary
+    metrics: BiodiversityMetrics
     sites: list[SiteRead]
     recent_audio_files: list[AudioFileRead]
     recent_detections: list[DetectionRead]

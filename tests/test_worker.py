@@ -42,3 +42,26 @@ def test_run_pending_jobs_respects_limit(db_session):
     assert completed_count == 1
     assert queued_count == 1
 
+
+def test_worker_processes_birdnet_jobs(db_session):
+    site = db_session.scalar(select(Site))
+    audio_file = AudioFile(
+        site_id=site.id,
+        file_name="birdnet-worker.wav",
+        storage_uri="file:///tmp/birdnet-worker.wav",
+        duration_seconds=20,
+    )
+    db_session.add(audio_file)
+    db_session.flush()
+    db_session.add(ProcessingJob(audio_file_id=audio_file.id, status="queued", job_type="birdnet_analysis"))
+    db_session.commit()
+
+    processed = run_pending_jobs(db_session, limit=5)
+
+    assert len(processed) == 1
+    assert processed[0].status == "completed"
+    raw_output = db_session.scalar(select(RawModelOutput).where(RawModelOutput.audio_file_id == audio_file.id))
+    detections = db_session.scalars(select(Detection).where(Detection.audio_file_id == audio_file.id)).all()
+    assert raw_output.output_format == "birdnet_json"
+    assert raw_output.payload["mode"] == "simulated"
+    assert {d.detection_type for d in detections} == {"species"}

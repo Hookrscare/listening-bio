@@ -353,7 +353,7 @@ button {
 
 .proof-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -639,9 +639,15 @@ td {
 }
 
 .raw-list,
+.export-actions,
 .report-list {
   display: grid;
   gap: 10px;
+}
+
+.export-actions {
+  grid-template-columns: repeat(2, minmax(0, 180px));
+  margin: 0 0 14px;
 }
 
 .raw-item,

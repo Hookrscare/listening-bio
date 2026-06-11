@@ -7,6 +7,14 @@ from backend.app.models import AudioFile, Detection, Organization, ProcessingJob
 from backend.app.services.job_state import transition_job
 
 
+def tiny_wav_bytes() -> bytes:
+    return (
+        b"RIFF$\x00\x00\x00WAVEfmt "
+        b"\x10\x00\x00\x00\x01\x00\x01\x00@\x1f\x00\x00@\x1f\x00\x00\x01\x00\x08\x00"
+        b"data\x00\x00\x00\x00"
+    )
+
+
 def test_health_endpoint(client):
     response = client.get("/health")
     assert response.status_code == 200
@@ -97,6 +105,36 @@ def test_audio_file_idempotency_key_prevents_duplicate_jobs(client, db_session):
     assert len(jobs) == 1
 
 
+def test_wav_upload_creates_birdnet_processing_job(client, db_session):
+    site = db_session.scalar(select(Site))
+
+    response = client.post(
+        "/audio-files/upload",
+        data={"site_id": site.id, "duration_seconds": "6.5"},
+        files={"file": ("field-recording.wav", tiny_wav_bytes(), "audio/wav")},
+    )
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["file_name"] == "field-recording.wav"
+    assert body["storage_uri"].startswith("file://")
+    job = db_session.scalar(select(ProcessingJob).where(ProcessingJob.audio_file_id == body["id"]))
+    assert job is not None
+    assert job.job_type == "birdnet_analysis"
+
+
+def test_wav_upload_rejects_non_wav(client, db_session):
+    site = db_session.scalar(select(Site))
+
+    response = client.post(
+        "/audio-files/upload",
+        data={"site_id": site.id},
+        files={"file": ("notes.txt", b"not audio", "text/plain")},
+    )
+
+    assert response.status_code == 400
+
+
 def test_mock_processing_stores_normalized_detections(client, db_session):
     site = db_session.scalar(select(Site))
     audio_response = client.post(
@@ -139,12 +177,12 @@ def test_job_state_rejects_completed_to_queued(db_session):
         transition_job(db_session, job, "queued")
 
 
-def test_run_mock_rejects_unsupported_job_type(client, db_session):
+def test_run_job_rejects_unsupported_job_type(client, db_session):
     site = db_session.scalar(select(Site))
     audio_file = AudioFile(site_id=site.id, file_name="unsupported.wav", storage_uri="s3://example/unsupported.wav")
     db_session.add(audio_file)
     db_session.flush()
-    job = ProcessingJob(audio_file_id=audio_file.id, job_type="birdnet_analysis")
+    job = ProcessingJob(audio_file_id=audio_file.id, job_type="unknown_analysis")
     db_session.add(job)
     db_session.commit()
 
@@ -152,6 +190,27 @@ def test_run_mock_rejects_unsupported_job_type(client, db_session):
 
     assert response.status_code == 400
     assert "Unsupported processing job type" in response.json()["detail"]
+
+
+def test_birdnet_processing_stores_normalized_species(client, db_session):
+    site = db_session.scalar(select(Site))
+    upload_response = client.post(
+        "/audio-files/upload",
+        data={"site_id": site.id, "duration_seconds": "30"},
+        files={"file": ("birdnet.wav", tiny_wav_bytes(), "audio/wav")},
+    )
+    audio_file_id = upload_response.json()["id"]
+    job = db_session.scalar(select(ProcessingJob).where(ProcessingJob.audio_file_id == audio_file_id))
+
+    response = client.post(f"/processing-jobs/{job.id}/run-mock")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "completed"
+    detections = db_session.scalars(select(Detection).where(Detection.audio_file_id == audio_file_id)).all()
+    raw_output = db_session.scalar(select(RawModelOutput).where(RawModelOutput.audio_file_id == audio_file_id))
+    assert {d.label for d in detections} >= {"American Robin", "Northern Cardinal"}
+    assert raw_output.payload["contract"] == "birdnet_analysis.v1"
+    assert raw_output.output_format == "birdnet_json"
 
 
 def test_database_constraints_reject_invalid_processing_job_status(db_session):
@@ -205,10 +264,35 @@ def test_project_dashboard_contract(client, db_session):
     body = response.json()
     assert body["project"]["id"] == project.id
     assert body["summary"]["metric_label"] == "prototype_indicator"
+    assert body["metrics"]["metric_label"] == "prototype_indicator"
     assert body["sites"][0]["project_id"] == project.id
     assert body["recent_detections"]
     assert body["job_counts_by_status"]["completed"] >= 1
     assert body["top_species"][0]["label"] == "American Robin"
+
+
+def test_biodiversity_metrics_and_csv_exports(client, db_session):
+    project = db_session.scalar(select(Project))
+    site = db_session.scalar(select(Site))
+    upload_response = client.post(
+        "/audio-files/upload",
+        data={"site_id": site.id, "duration_seconds": "3600"},
+        files={"file": ("metrics.wav", tiny_wav_bytes(), "audio/wav")},
+    )
+    audio_file_id = upload_response.json()["id"]
+    job = db_session.scalar(select(ProcessingJob).where(ProcessingJob.audio_file_id == audio_file_id))
+    client.post(f"/processing-jobs/{job.id}/run-mock")
+
+    metrics = client.get(f"/projects/{project.id}/metrics")
+    assert metrics.status_code == 200
+    assert metrics.json()["recording_hours"] == 1.0
+    assert metrics.json()["species_richness"] >= 2
+    assert metrics.json()["metric_label"] == "prototype_indicator"
+
+    csv_response = client.get(f"/exports/detections.csv?project_id={project.id}")
+    assert csv_response.status_code == 200
+    assert "text/csv" in csv_response.headers["content-type"]
+    assert "American Robin" in csv_response.text
 
 
 def test_create_project_endpoint(client, db_session):

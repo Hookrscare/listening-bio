@@ -12,13 +12,15 @@ const state = {
   reports: [],
   dashboard: null,
   summary: null,
+  metrics: null,
 };
 
 const $ = (selector) => document.querySelector(selector);
 
 async function api(path, options = {}) {
+  const isFormData = options.body instanceof FormData;
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    headers: { ...(isFormData ? {} : { "Content-Type": "application/json" }), ...(options.headers || {}) },
     ...options,
   });
   if (!response.ok) {
@@ -62,6 +64,7 @@ async function loadData() {
   state.reports = reports;
   state.dashboard = state.selectedProjectId ? await api(`/projects/${state.selectedProjectId}/dashboard`) : null;
   state.summary = state.dashboard?.summary || null;
+  state.metrics = state.dashboard?.metrics || null;
   if (state.dashboard) {
     state.sites = state.dashboard.sites;
     state.audioFiles = state.dashboard.recent_audio_files;
@@ -143,6 +146,9 @@ function renderSummary() {
   $("#activityScore").textContent = Math.round(summary.biodiversity_activity_score || 0);
   $("#speciesRichness").textContent = summary.species_richness ?? 0;
   $("#noiseScore").textContent = Math.round(summary.noise_score || 0);
+  $("#recordingHours").textContent = Number(state.metrics?.recording_hours || 0).toFixed(2);
+  $("#detectionsPerHour").textContent = Number(state.metrics?.detections_per_hour || 0).toFixed(1);
+  $("#confirmedPercent").textContent = `${Number(state.metrics?.confirmed_detection_percent || 0).toFixed(0)}%`;
   $("#siteCount").textContent = summary.site_count ?? state.sites.length;
   $("#audioCount").textContent = summary.audio_file_count ?? state.audioFiles.length;
   $("#detectionCount").textContent = summary.detection_count ?? state.detections.length;
@@ -263,19 +269,33 @@ function drawSpectrogram() {
 async function createAudioRecord(event) {
   event.preventDefault();
   const form = new FormData(event.currentTarget);
+  const uploadedFile = form.get("file");
   const payload = Object.fromEntries(form.entries());
   if (!payload.site_id) {
     $("#formStatus").textContent = "Add a site before registering audio.";
     return;
   }
-  payload.duration_seconds = Number(payload.duration_seconds || 0);
 
-  $("#formStatus").textContent = "Creating audio record";
-  const audio = await api("/audio-files", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-  $("#formStatus").textContent = `Audio ${shortId(audio.id)} queued`;
+  $("#formStatus").textContent = uploadedFile && uploadedFile.size ? "Uploading WAV" : "Creating audio record";
+  let audio;
+  if (uploadedFile && uploadedFile.size) {
+    form.delete("file_name");
+    form.delete("storage_uri");
+    form.delete("idempotency_key");
+    if (!form.get("duration_seconds")) form.delete("duration_seconds");
+    audio = await api("/audio-files/upload", {
+      method: "POST",
+      body: form,
+    });
+  } else {
+    delete payload.file;
+    payload.duration_seconds = Number(payload.duration_seconds || 0);
+    audio = await api("/audio-files", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  }
+  $("#formStatus").textContent = `Audio ${shortId(audio.id)} queued for ${uploadedFile && uploadedFile.size ? "BirdNET adapter" : "mock analysis"}`;
   await loadData();
 }
 
@@ -345,6 +365,11 @@ async function createReportShell() {
   await loadData();
 }
 
+function openExport(kind) {
+  if (!state.selectedProjectId) return;
+  window.open(`${API_BASE}/exports/${kind}.csv?project_id=${state.selectedProjectId}`, "_blank", "noopener");
+}
+
 function bindEvents() {
   $("#refreshButton").addEventListener("click", loadData);
   $("#projectSelect").addEventListener("change", async (event) => {
@@ -356,6 +381,9 @@ function bindEvents() {
   $("#runJobsButton").addEventListener("click", runQueuedJobs);
   $("#audioForm").addEventListener("submit", createAudioRecord);
   $("#createReportButton").addEventListener("click", createReportShell);
+  $("#exportDetectionsButton").addEventListener("click", () => openExport("detections"));
+  $("#exportSitesButton").addEventListener("click", () => openExport("sites"));
+  $("#exportAudioButton").addEventListener("click", () => openExport("audio-files"));
   $("#detectionsTable").addEventListener("click", async (event) => {
     const target = event.target.closest("[data-review]");
     if (!target) return;

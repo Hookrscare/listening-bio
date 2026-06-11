@@ -108,6 +108,18 @@
             <span>Metric status</span>
             <strong>Prototype only</strong>
           </div>
+          <div class="proof-card">
+            <span>Recording hours</span>
+            <strong id="recordingHours">0.00</strong>
+          </div>
+          <div class="proof-card">
+            <span>Detections/hour</span>
+            <strong id="detectionsPerHour">0.0</strong>
+          </div>
+          <div class="proof-card">
+            <span>Confirmed</span>
+            <strong id="confirmedPercent">0%</strong>
+          </div>
         </section>
 
         <section class="site-band" aria-label="Monitored sites">
@@ -151,6 +163,10 @@
               <select id="siteSelect" name="site_id" required></select>
             </label>
             <label>
+              WAV upload
+              <input name="file" type="file" accept=".wav,audio/wav" />
+            </label>
+            <label>
               File name
               <input name="file_name" value="morning-canopy-survey.wav" required />
             </label>
@@ -168,7 +184,7 @@
                 <input name="idempotency_key" value="morning-canopy-001" />
               </label>
             </div>
-            <button class="primary wide" id="createAudioButton" type="submit">Create audio record</button>
+            <button class="primary wide" id="createAudioButton" type="submit">Upload or create audio record</button>
             <p class="form-status" id="formStatus"></p>
           </form>
 
@@ -208,6 +224,7 @@
                 <p class="eyebrow">Normalized Results</p>
                 <h2>Detections</h2>
               </div>
+              <button class="ghost" id="exportDetectionsButton" type="button">Export CSV</button>
             </div>
             <div class="table-wrap">
               <table>
@@ -243,6 +260,10 @@
               <h2>Prototype report shells</h2>
             </div>
             <button class="ghost" id="createReportButton" type="button">Create report shell</button>
+          </div>
+          <div class="export-actions">
+            <button class="ghost" id="exportSitesButton" type="button">Sites CSV</button>
+            <button class="ghost" id="exportAudioButton" type="button">Audio CSV</button>
           </div>
           <div class="report-list" id="reportList"></div>
         </section>
