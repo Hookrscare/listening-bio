@@ -2,7 +2,7 @@ PYTHON ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: venv install test migrate seed dev-db serve worker clean
+.PHONY: venv install test migrate seed dev-db serve frontend worker clean
 
 venv:
 	$(PYTHON) -m venv $(VENV)
@@ -24,6 +24,9 @@ dev-db:
 
 serve:
 	$(BIN)/uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
+
+frontend:
+	cd frontend && ../$(BIN)/python -m http.server 5173
 
 worker:
 	$(BIN)/python -m backend.app.workers.run_pending_jobs --limit 10

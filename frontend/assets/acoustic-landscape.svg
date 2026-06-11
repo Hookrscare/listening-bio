@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Acoustic landscape visualization</title>
+  <desc id="desc">A layered habitat and waveform visualization for the biodiversity console.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#183d34"/>
+      <stop offset="0.52" stop-color="#174f55"/>
+      <stop offset="1" stop-color="#342f28"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2f9c95" stop-opacity="0.18"/>
+      <stop offset="0.5" stop-color="#d69b2d" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#d96b57" stop-opacity="0.16"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="520" fill="url(#sky)"/>
+  <path d="M0 340 C120 280 240 330 360 286 C520 228 640 332 805 250 C940 184 1055 218 1200 145 L1200 520 L0 520 Z" fill="#10231d"/>
+  <path d="M0 398 C190 350 318 406 490 360 C690 306 820 388 1200 270 L1200 520 L0 520 Z" fill="#1d4b39" opacity="0.8"/>
+  <path d="M0 450 C220 425 420 468 610 420 C805 370 995 418 1200 348 L1200 520 L0 520 Z" fill="#6f8f58" opacity="0.62"/>
+  <rect x="0" y="404" width="1200" height="116" fill="url(#water)" opacity="0.9"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M70 122 C120 72 170 180 220 124 S320 70 370 126 S470 182 520 120 S620 70 670 124 S770 176 820 122 S920 72 970 124 S1070 176 1120 122" stroke="#f5d17a" stroke-width="4" opacity="0.75"/>
+    <path d="M70 170 C120 135 170 205 220 170 S320 135 370 170 S470 205 520 170 S620 135 670 170 S770 205 820 170 S920 135 970 170 S1070 205 1120 170" stroke="#7ce2d5" stroke-width="3" opacity="0.72"/>
+    <path d="M70 222 C120 210 170 238 220 222 S320 210 370 222 S470 238 520 222 S620 210 670 222 S770 238 820 222 S920 210 970 222 S1070 238 1120 222" stroke="#ff9f85" stroke-width="3" opacity="0.62"/>
+  </g>
+  <g>
+    <circle cx="230" cy="118" r="8" fill="#f5d17a"/>
+    <circle cx="520" cy="169" r="8" fill="#7ce2d5"/>
+    <circle cx="820" cy="121" r="8" fill="#f5d17a"/>
+    <circle cx="970" cy="222" r="8" fill="#ff9f85"/>
+  </g>
+  <g opacity="0.18" stroke="#ffffff">
+    <path d="M110 0 V520"/>
+    <path d="M260 0 V520"/>
+    <path d="M410 0 V520"/>
+    <path d="M560 0 V520"/>
+    <path d="M710 0 V520"/>
+    <path d="M860 0 V520"/>
+    <path d="M1010 0 V520"/>
+    <path d="M0 105 H1200"/>
+    <path d="M0 208 H1200"/>
+    <path d="M0 312 H1200"/>
+    <path d="M0 416 H1200"/>
+  </g>
+</svg>
+

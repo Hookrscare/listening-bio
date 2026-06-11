@@ -20,6 +20,7 @@ class ProjectRead(BaseModel):
     name: str
     description: str | None = None
     status: str
+    created_at: datetime
 
 
 class SiteRead(BaseModel):
@@ -31,6 +32,7 @@ class SiteRead(BaseModel):
     habitat_type: str | None = None
     latitude: float | None = None
     longitude: float | None = None
+    created_at: datetime
 
 
 class AudioFileCreate(BaseModel):
@@ -54,7 +56,9 @@ class AudioFileRead(BaseModel):
     storage_uri: str
     content_type: str
     duration_seconds: float | None = None
+    recorded_at: datetime | None = None
     status: str
+    created_at: datetime
 
 
 class ProcessingJobCreate(BaseModel):
@@ -72,6 +76,7 @@ class ProcessingJobRead(BaseModel):
     error_message: str | None = None
     started_at: datetime | None = None
     completed_at: datetime | None = None
+    created_at: datetime
 
 
 class DetectionRead(BaseModel):
@@ -85,6 +90,11 @@ class DetectionRead(BaseModel):
     confidence: float
     start_seconds: float
     end_seconds: float
+    review_status: str
+    created_at: datetime
+
+
+class DetectionUpdate(BaseModel):
     review_status: str
 
 
@@ -128,3 +138,13 @@ class ProjectSummary(BaseModel):
     biodiversity_activity_score: float
     noise_score: float
     metric_label: str = "prototype_indicator"
+
+
+class ProjectDashboard(BaseModel):
+    project: ProjectRead
+    summary: ProjectSummary
+    sites: list[SiteRead]
+    recent_audio_files: list[AudioFileRead]
+    recent_detections: list[DetectionRead]
+    job_counts_by_status: dict[str, int]
+    top_species: list[dict[str, int | str]]

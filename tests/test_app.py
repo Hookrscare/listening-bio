@@ -13,6 +13,26 @@ def test_health_endpoint(client):
     assert response.json()["status"] == "ok"
 
 
+def test_cors_allows_local_frontend(client):
+    response = client.options(
+        "/health",
+        headers={
+            "Origin": "http://127.0.0.1:5173",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
+
+
+def test_frontend_is_served_by_backend(client):
+    response = client.get("/app/")
+
+    assert response.status_code == 200
+    assert "BioSignal Command" in response.text
+
+
 def test_database_metadata_imports():
     from backend.app.models import Base
 
@@ -162,6 +182,67 @@ def test_project_summary_returns_seeded_shape(client, db_session):
     assert body["metric_label"] == "prototype_indicator"
 
 
+def test_project_dashboard_contract(client, db_session):
+    project = db_session.scalar(select(Project))
+    site = db_session.scalar(select(Site))
+    audio_file = AudioFile(site_id=site.id, file_name="dashboard.wav", storage_uri="s3://example/dashboard.wav")
+    db_session.add(audio_file)
+    db_session.commit()
+    job = ProcessingJob(audio_file_id=audio_file.id)
+    db_session.add(job)
+    db_session.commit()
+    client.post(f"/processing-jobs/{job.id}/run-mock")
+
+    response = client.get(f"/projects/{project.id}/dashboard")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["project"]["id"] == project.id
+    assert body["summary"]["metric_label"] == "prototype_indicator"
+    assert body["sites"][0]["project_id"] == project.id
+    assert body["recent_detections"]
+    assert body["job_counts_by_status"]["completed"] >= 1
+    assert body["top_species"][0]["label"] == "American Robin"
+
+
+def test_scoped_filters_and_detail_endpoints(client, db_session):
+    project = db_session.scalar(select(Project))
+    site = db_session.scalar(select(Site))
+    audio_file = AudioFile(site_id=site.id, file_name="filters.wav", storage_uri="s3://example/filters.wav")
+    db_session.add(audio_file)
+    db_session.commit()
+    job = ProcessingJob(audio_file_id=audio_file.id)
+    db_session.add(job)
+    db_session.commit()
+    client.post(f"/processing-jobs/{job.id}/run-mock")
+
+    assert client.get(f"/projects/{project.id}").json()["id"] == project.id
+    assert client.get(f"/sites?project_id={project.id}").json()[0]["id"] == site.id
+    assert client.get(f"/sites/{site.id}").json()["id"] == site.id
+    assert client.get(f"/audio-files?site_id={site.id}").json()[0]["site_id"] == site.id
+    assert client.get(f"/audio-files/{audio_file.id}").json()["id"] == audio_file.id
+    assert client.get(f"/processing-jobs?audio_file_id={audio_file.id}").json()[0]["audio_file_id"] == audio_file.id
+    assert client.get(f"/processing-jobs/{job.id}").json()["id"] == job.id
+    assert client.get(f"/detections?project_id={project.id}&detection_type=species").json()[0]["detection_type"] == "species"
+
+
+def test_detection_review_update(client, db_session):
+    site = db_session.scalar(select(Site))
+    audio_file = AudioFile(site_id=site.id, file_name="review.wav", storage_uri="s3://example/review.wav")
+    db_session.add(audio_file)
+    db_session.commit()
+    job = ProcessingJob(audio_file_id=audio_file.id)
+    db_session.add(job)
+    db_session.commit()
+    client.post(f"/processing-jobs/{job.id}/run-mock")
+    detection = db_session.scalar(select(Detection).where(Detection.audio_file_id == audio_file.id))
+
+    response = client.patch(f"/detections/{detection.id}", json={"review_status": "confirmed"})
+
+    assert response.status_code == 200
+    assert response.json()["review_status"] == "confirmed"
+
+
 def test_report_shell_endpoints(client, db_session):
     project = db_session.scalar(select(Project))
 
@@ -180,3 +261,5 @@ def test_report_shell_endpoints(client, db_session):
     list_response = client.get("/reports")
     assert list_response.status_code == 200
     assert list_response.json()[0]["title"] == "Prototype Biodiversity Summary"
+    detail_response = client.get(f"/reports/{create_response.json()['id']}")
+    assert detail_response.status_code == 200

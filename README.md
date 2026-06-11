@@ -26,6 +26,7 @@ make install
 make dev-db
 make test
 make serve
+make frontend
 make worker
 ```
 
@@ -45,22 +46,40 @@ To inspect local tool readiness:
 
 See [docs/api-examples.md](docs/api-examples.md) for copy-pasteable curl examples covering the core vertical slice.
 
+## Frontend
+
+The first UI lives in `frontend/` and is served by FastAPI:
+
+```bash
+make dev-db
+make serve
+```
+
+Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `http://127.0.0.1:8000` and supports project overview, audio metadata intake, queued mock processing, detection review, raw model traceability, and report shell creation.
+
 ## Useful Endpoints
 
 - `GET /health`
 - `GET /organizations`
 - `GET /projects`
 - `GET /projects/{project_id}/summary`
+- `GET /projects/{project_id}/dashboard`
 - `GET /sites`
+- `GET /sites/{site_id}`
 - `POST /audio-files`
 - `GET /audio-files`
+- `GET /audio-files/{audio_file_id}`
 - `POST /processing-jobs`
 - `GET /processing-jobs`
+- `GET /processing-jobs/{job_id}`
 - `POST /processing-jobs/{job_id}/run-mock`
 - `GET /detections`
+- `GET /detections/{detection_id}`
+- `PATCH /detections/{detection_id}`
 - `GET /raw-model-outputs`
 - `POST /reports`
 - `GET /reports`
+- `GET /reports/{report_id}`
 
 ## Worker
 
