@@ -23,7 +23,7 @@ make smoke
 10. Create a report shell
 11. Read the project dashboard aggregate and prototype metrics
 12. Export detections as CSV
-13. Confirm the frontend is served at `/app/`
+13. Confirm the frontend and map shell are served at `/app/`
 
 ## Manual UI Check
 
@@ -42,6 +42,7 @@ Then verify:
 
 - The sidebar says `API online`.
 - The proof cards show `Connected`.
+- The Map section shows the seeded site marker or the coordinate fallback state.
 - Create a project.
 - Add a site to that project.
 - Upload a WAV file or create an audio metadata record.

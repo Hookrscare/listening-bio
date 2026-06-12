@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>BioSignal Command</title>
     <link rel="icon" href="data:," />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -19,6 +25,7 @@
         </div>
         <nav class="nav-list" aria-label="Primary">
           <a class="active" href="#overview">Overview</a>
+          <a href="#map">Map</a>
           <a href="#survey">Survey Intake</a>
           <a href="#detections">Detections</a>
           <a href="#reports">Reports</a>
@@ -149,6 +156,34 @@
           <div class="site-list" id="siteList"></div>
         </section>
 
+        <section class="map-band" id="map" aria-label="Habitat map">
+          <div class="map-panel">
+            <div class="map-copy">
+              <p class="eyebrow">Field Geography</p>
+              <h2>Habitat monitoring map</h2>
+              <p id="mapStatus">Waiting for site coordinates.</p>
+            </div>
+            <div class="map-frame">
+              <div id="siteMap"></div>
+              <div class="map-fallback" id="mapFallback">Map loading</div>
+            </div>
+          </div>
+          <div class="map-insights">
+            <div>
+              <span>Mapped sites</span>
+              <strong id="mappedSiteCount">0</strong>
+            </div>
+            <div>
+              <span>Audio coverage</span>
+              <strong id="mappedAudioCount">0</strong>
+            </div>
+            <div>
+              <span>Top location</span>
+              <strong id="topMappedSite">Pending</strong>
+            </div>
+          </div>
+        </section>
+
         <section class="workflow-grid">
           <form class="panel intake-panel" id="audioForm">
             <div class="panel-header">
@@ -270,6 +305,11 @@
       </main>
     </div>
 
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
     <script src="./app.js"></script>
   </body>
 </html>

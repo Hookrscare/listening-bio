@@ -138,8 +138,10 @@ def main() -> int:
         assert "American Robin" in csv_response.text
         checks.append("CSV export")
 
-        assert "BioSignal Command" in client.get("/app/").text
-        checks.append("frontend served")
+        frontend_html = client.get("/app/").text
+        assert "BioSignal Command" in frontend_html
+        assert "Habitat monitoring map" in frontend_html
+        checks.append("frontend and map shell served")
 
         print("Smoke verification passed:")
         for check in checks:

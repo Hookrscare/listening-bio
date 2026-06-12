@@ -16,7 +16,7 @@
 - CSV exports for detections, sites, and audio files
 - Prototype biodiversity metrics for recording hours, species richness, detections per hour, confirmed detection percent, and Shannon diversity
 - Local SQLite dev bootstrap for demos when Docker/PostGIS is unavailable
-- Static frontend prototype with dashboard, WAV intake, processing, detections, raw-output evidence, CSV export, and report shells
+- Static frontend prototype with dashboard, habitat map, WAV intake, processing, detections, raw-output evidence, CSV export, and report shells
 - Scoped/detail API endpoints, project dashboard aggregate, and detection review mutation
 - Backend tests for health, metadata import, seed idempotency, mock processing, summaries, and Alembic configuration
 

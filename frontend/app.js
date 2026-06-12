@@ -13,6 +13,8 @@ const state = {
   dashboard: null,
   summary: null,
   metrics: null,
+  map: null,
+  mapMarkers: [],
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -84,6 +86,7 @@ function render() {
   renderDetections();
   renderRawOutputs();
   renderReports();
+  renderMap();
   drawSpectrogram();
 }
 
@@ -131,6 +134,68 @@ function renderSites() {
         `;
       })
       .join("") || `<article class="site-card"><strong>No sites yet</strong><span>Add a site to activate survey intake.</span></article>`;
+}
+
+function siteAudioCount(siteId) {
+  return state.audioFiles.filter((audio) => audio.site_id === siteId).length;
+}
+
+function mappableSites() {
+  return state.sites.filter((site) => Number.isFinite(site.latitude) && Number.isFinite(site.longitude));
+}
+
+function renderMapFallback(mappable) {
+  const fallback = $("#mapFallback");
+  if (!fallback) return;
+  if (!mappable.length) {
+    fallback.hidden = false;
+    fallback.textContent = "Add site coordinates to activate the map.";
+    return;
+  }
+  fallback.hidden = Boolean(window.L);
+  fallback.textContent = window.L ? "" : "Map library unavailable; coordinates are still listed below.";
+}
+
+function renderMap() {
+  const mapElement = $("#siteMap");
+  if (!mapElement) return;
+  const mappable = mappableSites();
+  const topSite = mappable
+    .map((site) => ({ site, audioCount: siteAudioCount(site.id) }))
+    .sort((a, b) => b.audioCount - a.audioCount)[0];
+
+  $("#mappedSiteCount").textContent = mappable.length;
+  $("#mappedAudioCount").textContent = mappable.reduce((total, site) => total + siteAudioCount(site.id), 0);
+  $("#topMappedSite").textContent = topSite ? topSite.site.name : "Pending";
+  $("#mapStatus").textContent = mappable.length
+    ? `${mappable.length} site${mappable.length === 1 ? "" : "s"} mapped for the active project.`
+    : "Waiting for site coordinates.";
+  renderMapFallback(mappable);
+
+  if (!window.L || !mappable.length) return;
+  if (!state.map) {
+    state.map = L.map(mapElement, { scrollWheelZoom: false, zoomControl: true });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(state.map);
+  }
+
+  state.mapMarkers.forEach((marker) => marker.remove());
+  state.mapMarkers = mappable.map((site) => {
+    const audioCount = siteAudioCount(site.id);
+    const marker = L.marker([site.latitude, site.longitude]).addTo(state.map);
+    marker.bindPopup(`<strong>${site.name}</strong><br>${site.habitat_type || "Habitat pending"}<br>${audioCount} audio file${audioCount === 1 ? "" : "s"}`);
+    return marker;
+  });
+
+  const bounds = L.latLngBounds(mappable.map((site) => [site.latitude, site.longitude]));
+  if (mappable.length === 1) {
+    state.map.setView(bounds.getCenter(), 14);
+  } else {
+    state.map.fitBounds(bounds, { padding: [32, 32], maxZoom: 14 });
+  }
+  setTimeout(() => state.map.invalidateSize(), 0);
 }
 
 function renderProof() {

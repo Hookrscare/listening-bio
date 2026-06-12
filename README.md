@@ -57,7 +57,7 @@ make dev-db
 make serve
 ```
 
-Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `http://127.0.0.1:8000` and supports project overview, WAV/audio metadata intake, queued processing, detection review, raw model traceability, CSV export, and report shell creation.
+Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `http://127.0.0.1:8000` and supports project overview, habitat mapping, WAV/audio metadata intake, queued processing, detection review, raw model traceability, CSV export, and report shell creation.
 
 Use the Survey Intake file picker to upload a local `.wav`; this queues a `birdnet_analysis` job. Without a configured BirdNET command, the adapter stores clearly marked simulated BirdNET-style detections so the workflow remains testable.
 
