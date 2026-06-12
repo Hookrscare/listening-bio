@@ -13,21 +13,40 @@ BioSignal now has a `birdnet_analysis` job type and adapter boundary. The curren
 Configure `BIRDNET_COMMAND` as a shell command template:
 
 ```bash
-export BIRDNET_COMMAND='python /path/to/BirdNET-Analyzer/analyze.py --i {input} --o {output}'
+export BIRDNET_COMMAND='python -m birdnet_analyzer.analyze {input} -o {output_dir} --rtype csv --min_conf {min_conf}'
 ```
 
 The adapter replaces:
 
 - `{input}` with the uploaded local WAV path
-- `{output}` with a temporary JSON path
+- `{output_dir}` with a temporary output directory
+- `{output}` with a temporary JSON path for custom wrappers
+- `{lat}`, `{lon}`, and `{week}` with site/recording metadata when available
+- `{min_conf}` with `BIRDNET_MIN_CONFIDENCE`
 
-The JSON can be either:
+The adapter parses BirdNET-style CSV/table files, JSON files, or custom JSON wrappers. JSON can be either:
 
 ```json
 [
   ["Turdus migratorius_American Robin", 0.91]
 ]
 ```
+
+CSV/table output should include any recognizable combination of:
+
+- `Scientific name` and `Common name`
+- `Begin Time (s)` / `End Time (s)` or `Start (s)` / `End (s)`
+- `Confidence`, `Score`, or `Probability`
+
+## Status Endpoint
+
+Use this endpoint to verify whether the app is connected to a real runner:
+
+```bash
+curl http://127.0.0.1:8000/integrations/birdnet/status
+```
+
+When `BIRDNET_COMMAND` is missing, the API returns `mode: simulated`. That path is useful for local demos, but real ecological validation requires a configured BirdNET runner and review by qualified users.
 
 or:
 

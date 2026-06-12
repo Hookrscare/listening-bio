@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     database_url: str = "sqlite+pysqlite:///./work/biodiversity_dev.db"
     upload_dir: str = "work/uploads"
     birdnet_command: str | None = None
+    birdnet_timeout_seconds: int = 300
+    birdnet_min_confidence: float = 0.25
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

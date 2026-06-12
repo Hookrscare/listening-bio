@@ -21,6 +21,16 @@ def test_health_endpoint(client):
     assert response.json()["status"] == "ok"
 
 
+def test_birdnet_status_endpoint(client):
+    response = client.get("/integrations/birdnet/status")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["mode"] in {"simulated", "configured"}
+    assert "csv" in body["supported_outputs"]
+    assert "{input}" in body["recommended_command"]
+
+
 def test_cors_allows_local_frontend(client):
     response = client.options(
         "/health",
@@ -211,6 +221,29 @@ def test_birdnet_processing_stores_normalized_species(client, db_session):
     assert {d.label for d in detections} >= {"American Robin", "Northern Cardinal"}
     assert raw_output.payload["contract"] == "birdnet_analysis.v1"
     assert raw_output.output_format == "birdnet_json"
+
+
+def test_birdnet_csv_table_parser_normalizes_real_outputs(db_session, tmp_path):
+    from backend.app.services.birdnet_processing import parse_birdnet_output_file
+
+    site = db_session.scalar(select(Site))
+    audio_file = AudioFile(site_id=site.id, file_name="birdnet-table.wav", storage_uri="file:///tmp/birdnet-table.wav")
+    csv_path = tmp_path / "birdnet-results.csv"
+    csv_path.write_text(
+        "Begin Time (s),End Time (s),Scientific name,Common name,Confidence\n"
+        "0.0,3.0,Poecile atricapillus,Black-capped Chickadee,0.7889\n"
+    )
+
+    results = parse_birdnet_output_file(csv_path, audio_file)
+
+    assert results == [
+        {
+            "label": "Poecile atricapillus_Black-capped Chickadee",
+            "confidence": 0.7889,
+            "start_seconds": 0.0,
+            "end_seconds": 3.0,
+        }
+    ]
 
 
 def test_database_constraints_reject_invalid_processing_job_status(db_session):

@@ -13,6 +13,7 @@ const state = {
   dashboard: null,
   summary: null,
   metrics: null,
+  birdnetStatus: null,
   map: null,
   mapMarkers: [],
 };
@@ -42,7 +43,7 @@ function shortId(id) {
 
 async function loadData() {
   $("#systemStatus").textContent = "Syncing API";
-  const [organizations, projects, sites, audioFiles, jobs, detections, rawOutputs, reports] = await Promise.all([
+  const [organizations, projects, sites, audioFiles, jobs, detections, rawOutputs, reports, birdnetStatus] = await Promise.all([
     api("/organizations"),
     api("/projects"),
     api("/sites"),
@@ -51,6 +52,7 @@ async function loadData() {
     api("/detections"),
     api("/raw-model-outputs"),
     api("/reports"),
+    api("/integrations/birdnet/status"),
   ]);
 
   state.organizations = organizations;
@@ -64,6 +66,7 @@ async function loadData() {
   state.detections = detections;
   state.rawOutputs = rawOutputs;
   state.reports = reports;
+  state.birdnetStatus = birdnetStatus;
   state.dashboard = state.selectedProjectId ? await api(`/projects/${state.selectedProjectId}/dashboard`) : null;
   state.summary = state.dashboard?.summary || null;
   state.metrics = state.dashboard?.metrics || null;
@@ -82,6 +85,7 @@ function render() {
   renderSites();
   renderProof();
   renderSummary();
+  renderIntegration();
   renderJobs();
   renderDetections();
   renderRawOutputs();
@@ -206,6 +210,23 @@ function renderProof() {
   $("#syncProof").textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
+function renderIntegration() {
+  const status = state.birdnetStatus || {};
+  const mode = status.mode || "unknown";
+  const birdnetMode = $("#birdnetMode");
+  birdnetMode.textContent = mode === "configured" ? "Configured" : "Simulated";
+  birdnetMode.className = `status ${mode === "configured" ? "completed" : "queued"}`;
+  $("#birdnetRunner").textContent = mode === "configured" ? "External command" : "Local adapter simulation";
+  $("#birdnetConfidence").textContent = status.min_confidence ? Number(status.min_confidence).toFixed(2) : "--";
+  $("#birdnetOutputs").textContent = Array.isArray(status.supported_outputs) ? status.supported_outputs.join(", ") : "--";
+
+  const failedJobs = state.jobs.filter((job) => job.status === "failed").length;
+  const queuedJobs = state.jobs.filter((job) => job.status === "queued").length;
+  const unreviewed = state.detections.filter((detection) => detection.review_status === "unreviewed").length;
+  $("#operationsState").textContent = failedJobs ? `${failedJobs} job failed` : queuedJobs ? `${queuedJobs} queued` : "Stable";
+  $("#reviewQueueCount").textContent = unreviewed;
+}
+
 function renderSummary() {
   const summary = state.summary || {};
   $("#activityScore").textContent = Math.round(summary.biodiversity_activity_score || 0);
@@ -220,6 +241,8 @@ function renderSummary() {
   const jobCounts = state.dashboard?.job_counts_by_status || {};
   const queuedFromDashboard = jobCounts.queued || state.jobs.filter((job) => job.status === "queued").length;
   $("#queuedCount").textContent = `${queuedFromDashboard} queued`;
+  $("#completedJobCount").textContent = jobCounts.completed || state.jobs.filter((job) => job.status === "completed").length;
+  $("#failedJobCount").textContent = jobCounts.failed || state.jobs.filter((job) => job.status === "failed").length;
 }
 
 function renderJobs() {

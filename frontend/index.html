@@ -37,7 +37,7 @@
         <header class="topbar">
           <div>
             <p class="eyebrow">Pilot Acoustic Biodiversity Survey</p>
-            <h1>Urban habitat signal console</h1>
+            <h1>BioSignal field console</h1>
           </div>
           <div class="actions">
             <button class="ghost" id="refreshButton" type="button">Refresh</button>
@@ -70,12 +70,12 @@
             <img src="./assets/acoustic-landscape.svg" alt="Layered acoustic landscape with habitat, waveform, and detection markers" />
             <canvas id="spectrogramCanvas" width="980" height="280"></canvas>
             <div class="visual-caption">
-              <span>Live evidence chain</span>
-              <strong>Audio -> Model output -> Detection -> Review</strong>
+              <span>Evidence chain</span>
+              <strong>Upload -> BirdNET adapter -> Detections -> Review -> Export</strong>
             </div>
           </div>
           <div class="metric-panel">
-          <div class="metric-large">
+            <div class="metric-large">
               <span>Prototype indicator</span>
               <strong id="activityScore">--</strong>
               <em>Biodiversity activity score</em>
@@ -95,6 +95,38 @@
               <div><span>Audio files</span><strong id="audioCount">--</strong></div>
               <div><span>Detections</span><strong id="detectionCount">--</strong></div>
             </div>
+          </div>
+        </section>
+
+        <section class="integration-band" aria-label="Integration status">
+          <div class="integration-card">
+            <div>
+              <p class="eyebrow">Model Runner</p>
+              <h2>BirdNET integration</h2>
+            </div>
+            <span class="status" id="birdnetMode">Checking</span>
+            <dl>
+              <div>
+                <dt>Runner</dt>
+                <dd id="birdnetRunner">Pending</dd>
+              </div>
+              <div>
+                <dt>Min confidence</dt>
+                <dd id="birdnetConfidence">--</dd>
+              </div>
+              <div>
+                <dt>Outputs</dt>
+                <dd id="birdnetOutputs">--</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="integration-card compact">
+            <span>Operational state</span>
+            <strong id="operationsState">Waiting for data</strong>
+          </div>
+          <div class="integration-card compact">
+            <span>Review queue</span>
+            <strong id="reviewQueueCount">0</strong>
           </div>
         </section>
 
@@ -199,7 +231,7 @@
             </label>
             <label>
               WAV upload
-              <input name="file" type="file" accept=".wav,audio/wav" />
+              <input class="file-input" name="file" type="file" accept=".wav,audio/wav" />
             </label>
             <label>
               File name
@@ -236,6 +268,10 @@
               <div class="pipeline-step" id="queuedStep"><span></span>Queued</div>
               <div class="pipeline-step" id="processedStep"><span></span>Processed</div>
               <div class="pipeline-step" id="reviewedStep"><span></span>Reviewed</div>
+            </div>
+            <div class="queue-summary">
+              <div><span>Completed</span><strong id="completedJobCount">0</strong></div>
+              <div><span>Failed</span><strong id="failedJobCount">0</strong></div>
             </div>
             <div class="table-wrap">
               <table>

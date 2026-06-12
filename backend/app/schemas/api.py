@@ -124,6 +124,16 @@ class RawModelOutputRead(BaseModel):
     payload: dict[str, Any]
 
 
+class BirdnetStatus(BaseModel):
+    configured: bool
+    mode: str
+    min_confidence: float
+    timeout_seconds: int
+    command_template_present: bool
+    supported_outputs: list[str]
+    recommended_command: str
+
+
 class ReportCreate(BaseModel):
     project_id: str
     title: str

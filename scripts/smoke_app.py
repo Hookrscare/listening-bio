@@ -52,6 +52,10 @@ def main() -> int:
         assert client.get("/health").json()["status"] == "ok"
         checks.append("health endpoint")
 
+        birdnet_status = client.get("/integrations/birdnet/status").json()
+        assert birdnet_status["mode"] in {"simulated", "configured"}
+        checks.append("BirdNET integration status")
+
         org_id = client.get("/organizations").json()[0]["id"]
         project_response = client.post(
             "/projects",

@@ -12,6 +12,7 @@ from backend.app.schemas.api import (
     AudioFileCreate,
     AudioFileRead,
     BiodiversityMetrics,
+    BirdnetStatus,
     DetectionRead,
     DetectionUpdate,
     OrganizationRead,
@@ -28,6 +29,7 @@ from backend.app.schemas.api import (
     SiteRead,
 )
 from backend.app.services.audio_storage import save_uploaded_wav
+from backend.app.services.birdnet_processing import birdnet_status
 from backend.app.services.mock_processing import ensure_processing_job
 from backend.app.services.summaries import get_biodiversity_metrics, get_project_summary
 from backend.app.workers.processing_worker import run_job_once
@@ -38,6 +40,11 @@ router = APIRouter()
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "app": get_settings().app_name}
+
+
+@router.get("/integrations/birdnet/status", response_model=BirdnetStatus)
+def get_birdnet_status() -> dict[str, object]:
+    return birdnet_status()
 
 
 @router.get("/organizations", response_model=list[OrganizationRead])
