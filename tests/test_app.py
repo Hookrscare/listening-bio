@@ -1,3 +1,5 @@
+import sys
+
 from sqlalchemy import select
 
 import pytest
@@ -244,6 +246,42 @@ def test_birdnet_csv_table_parser_normalizes_real_outputs(db_session, tmp_path):
             "end_seconds": 3.0,
         }
     ]
+
+
+def test_configured_birdnet_no_detections_does_not_fallback(monkeypatch, db_session, tmp_path):
+    from backend.app.config import get_settings
+    from backend.app.workers.processing_worker import run_job_once
+
+    runner = tmp_path / "empty_birdnet.py"
+    runner.write_text(
+        "from pathlib import Path\n"
+        "import sys\n"
+        "output_dir = Path(sys.argv[2])\n"
+        "output_dir.mkdir(parents=True, exist_ok=True)\n"
+        "(output_dir / 'empty.csv').write_text('Begin Time (s),End Time (s),Scientific name,Common name,Confidence\\n')\n"
+    )
+    audio_path = tmp_path / "field.wav"
+    audio_path.write_bytes(tiny_wav_bytes())
+    monkeypatch.setenv("BIRDNET_COMMAND", f"{sys.executable} {runner} {{input}} {{output_dir}}")
+    get_settings.cache_clear()
+
+    site = db_session.scalar(select(Site))
+    audio_file = AudioFile(site_id=site.id, file_name="field.wav", storage_uri=audio_path.as_uri())
+    db_session.add(audio_file)
+    db_session.flush()
+    job = ProcessingJob(audio_file_id=audio_file.id, status="queued", job_type="birdnet_analysis")
+    db_session.add(job)
+    db_session.commit()
+
+    completed = run_job_once(db_session, job)
+
+    raw_output = db_session.scalar(select(RawModelOutput).where(RawModelOutput.audio_file_id == audio_file.id))
+    detections = db_session.scalars(select(Detection).where(Detection.audio_file_id == audio_file.id)).all()
+    assert completed.status == "completed"
+    assert raw_output.payload["mode"] == "configured_no_detections"
+    assert detections == []
+    monkeypatch.delenv("BIRDNET_COMMAND", raising=False)
+    get_settings.cache_clear()
 
 
 def test_database_constraints_reject_invalid_processing_job_status(db_session):

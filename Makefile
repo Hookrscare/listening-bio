@@ -2,13 +2,25 @@ PYTHON ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: venv install test smoke migrate seed dev-db serve frontend worker clean
+.PHONY: venv install birdnet-install birdnet-check birdnet-sample birdnet-verify test smoke migrate seed dev-db serve frontend worker clean
 
 venv:
 	$(PYTHON) -m venv $(VENV)
 
 install: venv
 	$(BIN)/pip install -e ".[dev]"
+
+birdnet-install: install
+	$(BIN)/pip install -e ".[birdnet]"
+
+birdnet-check:
+	$(BIN)/python scripts/check_birdnet.py
+
+birdnet-sample:
+	$(BIN)/python scripts/create_sample_wav.py work/sample-birdnet.wav
+
+birdnet-verify:
+	$(BIN)/python scripts/verify_birdnet_real.py
 
 test:
 	$(BIN)/python -m pytest -q

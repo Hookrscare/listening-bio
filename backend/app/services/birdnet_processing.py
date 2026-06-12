@@ -3,6 +3,7 @@ import json
 import math
 import shlex
 import subprocess
+import sys
 import tempfile
 from collections import Counter
 from dataclasses import dataclass
@@ -39,7 +40,7 @@ def birdnet_status() -> dict[str, object]:
         "timeout_seconds": settings.birdnet_timeout_seconds,
         "command_template_present": bool(settings.birdnet_command),
         "supported_outputs": ["json", "csv", "table"],
-        "recommended_command": "python -m birdnet_analyzer.analyze {input} -o {output_dir} --rtype csv --min_conf {min_conf}",
+        "recommended_command": f"{sys.executable} -m birdnet_analyzer.analyze {{input}} -o {{output_dir}} --rtype csv --min_conf {{min_conf}}",
     }
 
 
@@ -116,6 +117,8 @@ def normalize_birdnet_rows(rows: list[dict[str, str]], audio_file: AudioFile) ->
         scientific_name = _first_value(row, ("scientific name", "scientific_name", "species", "species name", "latin name"))
         common_name = _first_value(row, ("common name", "common_name", "label", "species common name", "class"))
         combined_label = _first_value(row, ("label", "species", "common name", "common_name"))
+        if not scientific_name and not common_name and not combined_label:
+            continue
         if scientific_name and common_name:
             label = f"{scientific_name}_{common_name}"
         else:
@@ -197,6 +200,7 @@ def _discover_output_files(output_dir: Path) -> list[Path]:
     candidates: list[Path] = []
     for suffix in ("*.json", "*.csv", "*.txt"):
         candidates.extend(output_dir.rglob(suffix))
+    candidates = [path for path in candidates if "analysis_params" not in path.name.lower()]
     return sorted(candidates, key=lambda path: (path.stat().st_mtime, path.name), reverse=True)
 
 
@@ -204,8 +208,10 @@ def _run_configured_birdnet(db: Session, audio_file: AudioFile) -> BirdnetRun:
     settings = get_settings()
     command = settings.birdnet_command
     audio_path = _audio_path(audio_file.storage_uri)
-    if not command or audio_path is None or not audio_path.exists():
+    if not command:
         return BirdnetRun(mode="simulated", results=_fallback_results(audio_file))
+    if audio_path is None or not audio_path.exists():
+        raise FileNotFoundError(f"Audio file not available for BirdNET: {audio_file.storage_uri}")
 
     site = db.get(Site, audio_file.site_id)
 
@@ -232,10 +238,17 @@ def _run_configured_birdnet(db: Session, audio_file: AudioFile) -> BirdnetRun:
         output_files = _discover_output_files(output_dir)
         for output_file in output_files:
             results.extend(parse_birdnet_output_file(output_file, audio_file))
+        results = [
+            result
+            for result in results
+            if float(result.get("confidence", 0.0)) >= settings.birdnet_min_confidence
+            and str(result.get("label", "")).strip()
+            and str(result.get("label", "")) != "Unknown species"
+        ]
         if not results:
             return BirdnetRun(
-                mode="configured_no_output",
-                results=_fallback_results(audio_file),
+                mode="configured_no_detections",
+                results=[],
                 command=rendered,
                 output_files=[str(path) for path in output_files],
                 stderr=completed.stderr,

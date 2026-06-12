@@ -13,7 +13,7 @@ BioSignal now has a `birdnet_analysis` job type and adapter boundary. The curren
 Configure `BIRDNET_COMMAND` as a shell command template:
 
 ```bash
-export BIRDNET_COMMAND='python -m birdnet_analyzer.analyze {input} -o {output_dir} --rtype csv --min_conf {min_conf}'
+export BIRDNET_COMMAND='.venv/bin/python -m birdnet_analyzer.analyze {input} -o {output_dir} --rtype csv --min_conf {min_conf}'
 ```
 
 The adapter replaces:
@@ -29,6 +29,19 @@ The adapter parses BirdNET-style CSV/table files, JSON files, or custom JSON wra
 ```json
 [
   ["Turdus migratorius_American Robin", 0.91]
+]
+```
+
+or:
+
+```json
+[
+  {
+    "label": "Turdus migratorius_American Robin",
+    "confidence": 0.91,
+    "start_seconds": 4.0,
+    "end_seconds": 7.0
+  }
 ]
 ```
 
@@ -48,18 +61,19 @@ curl http://127.0.0.1:8000/integrations/birdnet/status
 
 When `BIRDNET_COMMAND` is missing, the API returns `mode: simulated`. That path is useful for local demos, but real ecological validation requires a configured BirdNET runner and review by qualified users.
 
-or:
+## Local Installation And Verification
 
-```json
-[
-  {
-    "label": "Turdus migratorius_American Robin",
-    "confidence": 0.91,
-    "start_seconds": 4.0,
-    "end_seconds": 7.0
-  }
-]
+Install the optional BirdNET runtime only on machines that need to run inference:
+
+```bash
+make birdnet-install
+make birdnet-check
+export BIRDNET_COMMAND='.venv/bin/python -m birdnet_analyzer.analyze {input} -o {output_dir} --rtype csv --min_conf {min_conf}'
+make birdnet-sample
+make birdnet-verify
 ```
+
+`make birdnet-verify` runs through the BioSignal upload and processing pipeline. Synthetic audio may produce zero detections; use a real field recording to validate ecological output.
 
 ## Source Notes
 

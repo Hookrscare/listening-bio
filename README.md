@@ -66,7 +66,10 @@ Use the Survey Intake file picker to upload a local `.wav`; this queues a `birdn
 The app is ready for a real BirdNET command without changing the API or database architecture. Set `BIRDNET_COMMAND` to a command template that accepts `{input}` and writes outputs to `{output_dir}`:
 
 ```bash
-export BIRDNET_COMMAND='python -m birdnet_analyzer.analyze {input} -o {output_dir} --rtype csv --min_conf {min_conf}'
+make birdnet-install
+make birdnet-check
+export BIRDNET_COMMAND='.venv/bin/python -m birdnet_analyzer.analyze {input} -o {output_dir} --rtype csv --min_conf {min_conf}'
+make birdnet-verify
 ```
 
 Until that variable is configured, `birdnet_analysis` jobs run in `simulated` mode and write the mode into `raw_model_outputs.payload`. Check `GET /integrations/birdnet/status` before claiming real model output. See [docs/birdnet-integration.md](docs/birdnet-integration.md).
