@@ -36,7 +36,10 @@
       <main class="main">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Pilot Acoustic Biodiversity Survey</p>
+            <div class="topline">
+              <p class="eyebrow">Pilot Acoustic Biodiversity Survey</p>
+              <span class="release-chip">Studio UI v2</span>
+            </div>
             <h1>BioSignal field console</h1>
           </div>
           <div class="actions">
@@ -69,6 +72,24 @@
           <div class="acoustic-visual" aria-label="Acoustic activity visualization">
             <img src="./assets/acoustic-landscape.svg" alt="Layered acoustic landscape with habitat, waveform, and detection markers" />
             <canvas id="spectrogramCanvas" width="980" height="280"></canvas>
+            <div class="hero-copy">
+              <span>Active deployment</span>
+              <strong id="heroProjectName">Loading project</strong>
+            </div>
+            <div class="hero-stat-strip">
+              <div>
+                <span>Model state</span>
+                <strong id="heroModelState">Checking</strong>
+              </div>
+              <div>
+                <span>Review queue</span>
+                <strong id="heroReviewState">0</strong>
+              </div>
+              <div>
+                <span>Exports</span>
+                <strong>CSV ready</strong>
+              </div>
+            </div>
             <div class="visual-caption">
               <span>Evidence chain</span>
               <strong>Upload -> BirdNET adapter -> Detections -> Review -> Export</strong>

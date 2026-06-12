@@ -99,6 +99,7 @@ function renderProjects() {
   select.innerHTML = state.projects
     .map((project) => `<option value="${project.id}" ${project.id === state.selectedProjectId ? "selected" : ""}>${project.name}</option>`)
     .join("");
+  $("#heroProjectName").textContent = state.dashboard?.project?.name || state.projects[0]?.name || "No active project";
 }
 
 function renderSites() {
@@ -225,6 +226,8 @@ function renderIntegration() {
   const unreviewed = state.detections.filter((detection) => detection.review_status === "unreviewed").length;
   $("#operationsState").textContent = failedJobs ? `${failedJobs} job failed` : queuedJobs ? `${queuedJobs} queued` : "Stable";
   $("#reviewQueueCount").textContent = unreviewed;
+  $("#heroModelState").textContent = mode === "configured" ? "BirdNET live" : "Simulated";
+  $("#heroReviewState").textContent = unreviewed;
 }
 
 function renderSummary() {
