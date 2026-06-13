@@ -17,13 +17,15 @@
 - Prototype biodiversity metrics for recording hours, species richness, detections per hour, confirmed detection percent, and Shannon diversity
 - Local SQLite dev bootstrap for demos when Docker/PostGIS is unavailable
 - Static frontend prototype with dashboard, habitat map, WAV intake, processing, detections, raw-output evidence, CSV export, and report shells
+- Partner-facing pilot page for collaboration conversations
 - Scoped/detail API endpoints, project dashboard aggregate, and detection review mutation
 - Backend tests for health, metadata import, seed idempotency, mock processing, summaries, and Alembic configuration
+- Real public recording demo script using Xeno-canto `XC364638`
 
 ## Deferred
 
 - Authentication and authorization enforcement
-- Real BirdNET Analyzer installation and production runner tuning
+- Production BirdNET runner tuning and pilot-scale validation
 - YAMNet integration
 - PDF report file export
 - Admin review panel

@@ -135,6 +135,21 @@ def test_wav_upload_creates_birdnet_processing_job(client, db_session):
     assert job.job_type == "birdnet_analysis"
 
 
+def test_processing_job_run_endpoint_executes_analysis(client, db_session):
+    site = db_session.scalar(select(Site))
+    audio_file = AudioFile(site_id=site.id, file_name="runner.wav", storage_uri="s3://example/runner.wav")
+    db_session.add(audio_file)
+    db_session.flush()
+    job = ProcessingJob(audio_file_id=audio_file.id, status="queued", job_type="mock_audio_analysis")
+    db_session.add(job)
+    db_session.commit()
+
+    response = client.post(f"/processing-jobs/{job.id}/run")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "completed"
+
+
 def test_wav_upload_rejects_non_wav(client, db_session):
     site = db_session.scalar(select(Site))
 

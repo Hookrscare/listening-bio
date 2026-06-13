@@ -303,8 +303,7 @@ def get_processing_job(job_id: str, db: Session = Depends(get_db)) -> Processing
     return job
 
 
-@router.post("/processing-jobs/{job_id}/run-mock", response_model=ProcessingJobRead)
-def run_processing_job(job_id: str, db: Session = Depends(get_db)) -> ProcessingJob:
+def _run_processing_job(job_id: str, db: Session) -> ProcessingJob:
     job = db.get(ProcessingJob, job_id)
     if job is None:
         raise HTTPException(status_code=404, detail="Processing job not found.")
@@ -314,6 +313,16 @@ def run_processing_job(job_id: str, db: Session = Depends(get_db)) -> Processing
         return run_job_once(db, job)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/processing-jobs/{job_id}/run", response_model=ProcessingJobRead)
+def run_processing_job(job_id: str, db: Session = Depends(get_db)) -> ProcessingJob:
+    return _run_processing_job(job_id, db)
+
+
+@router.post("/processing-jobs/{job_id}/run-mock", response_model=ProcessingJobRead)
+def run_processing_job_legacy(job_id: str, db: Session = Depends(get_db)) -> ProcessingJob:
+    return _run_processing_job(job_id, db)
 
 
 @router.get("/detections", response_model=list[DetectionRead])

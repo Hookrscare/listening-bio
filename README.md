@@ -61,6 +61,8 @@ Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `htt
 
 Use the Survey Intake file picker to upload a local `.wav`; this queues a `birdnet_analysis` job. Without a configured BirdNET command, the adapter stores clearly marked simulated BirdNET-style detections so the workflow remains testable.
 
+The first partner-facing pilot page is available at `http://127.0.0.1:8000/app/partners.html`.
+
 ## BirdNET Adapter
 
 The app is ready for a real BirdNET command without changing the API or database architecture. Set `BIRDNET_COMMAND` to a command template that accepts `{input}` and writes outputs to `{output_dir}`:
@@ -73,6 +75,15 @@ make birdnet-verify
 ```
 
 Until that variable is configured, `birdnet_analysis` jobs run in `simulated` mode and write the mode into `raw_model_outputs.payload`. Check `GET /integrations/birdnet/status` before claiming real model output. See [docs/birdnet-integration.md](docs/birdnet-integration.md).
+
+To run a real public wildlife recording through the full BioSignal pipeline:
+
+```bash
+export BIRDNET_COMMAND="$PWD/.venv/bin/python -m birdnet_analyzer.analyze {input} -o {output_dir} --rtype csv --min_conf {min_conf}"
+.venv/bin/python scripts/run_real_recording_demo.py
+```
+
+The demo uses Xeno-canto `XC364638`, an American Robin recording by Ted Floyd licensed under Creative Commons BY-NC-SA 4.0. See [docs/demo-playbook.md](docs/demo-playbook.md).
 
 ## Useful Endpoints
 
@@ -94,6 +105,7 @@ Until that variable is configured, `birdnet_analysis` jobs run in `simulated` mo
 - `POST /processing-jobs`
 - `GET /processing-jobs`
 - `GET /processing-jobs/{job_id}`
+- `POST /processing-jobs/{job_id}/run`
 - `POST /processing-jobs/{job_id}/run-mock`
 - `GET /detections`
 - `GET /detections/{detection_id}`

@@ -437,7 +437,7 @@ async function runQueuedJobs() {
 
   $("#systemStatus").textContent = `Processing ${queuedJobs.length} job(s)`;
   for (const job of queuedJobs) {
-    await api(`/processing-jobs/${job.id}/run-mock`, { method: "POST" });
+    await api(`/processing-jobs/${job.id}/run`, { method: "POST" });
   }
   await loadData();
   $("#systemStatus").textContent = "Flow verified";
