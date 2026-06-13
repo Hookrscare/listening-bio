@@ -85,6 +85,17 @@ export BIRDNET_COMMAND="$PWD/.venv/bin/python -m birdnet_analyzer.analyze {input
 
 The demo uses Xeno-canto `XC364638`, an American Robin recording by Ted Floyd licensed under Creative Commons BY-NC-SA 4.0. See [docs/demo-playbook.md](docs/demo-playbook.md).
 
+## Central Park Pilot Simulation
+
+While real partner permission and recordings are pending, load a clearly marked simulated Central Park pilot dataset:
+
+```bash
+make simulate-pilot
+make serve
+```
+
+Open `http://127.0.0.1:8000/app/` and select `Central Park Acoustic Biodiversity Pilot Simulation`. This creates 5 simulated sites, 100 audio records, BirdNET-like candidate detections, review states, a report shell, and partner/outreach artifacts. See [docs/central-park-pilot-simulation.md](docs/central-park-pilot-simulation.md).
+
 ## Useful Endpoints
 
 - `GET /health`

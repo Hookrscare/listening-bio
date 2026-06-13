@@ -21,6 +21,7 @@
 - Scoped/detail API endpoints, project dashboard aggregate, and detection review mutation
 - Backend tests for health, metadata import, seed idempotency, mock processing, summaries, and Alembic configuration
 - Real public recording demo script using Xeno-canto `XC364638`
+- Central Park pilot simulation dataset for partner-demo rehearsal
 
 ## Deferred
 

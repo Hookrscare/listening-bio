@@ -150,6 +150,26 @@ def test_processing_job_run_endpoint_executes_analysis(client, db_session):
     assert response.json()["status"] == "completed"
 
 
+def test_central_park_pilot_simulation_is_repeatable(db_session):
+    from scripts.simulate_central_park_pilot import PROJECT_EXTERNAL_ID, SIMULATION_TAG, simulate
+
+    first = simulate(db_session, recordings_per_site=2, seed_value=7)
+    second = simulate(db_session, recordings_per_site=2, seed_value=7)
+    project = db_session.scalar(select(Project).where(Project.external_id == PROJECT_EXTERNAL_ID))
+    raw_output = db_session.scalar(
+        select(RawModelOutput)
+        .join(AudioFile, RawModelOutput.audio_file_id == AudioFile.id)
+        .join(Site, AudioFile.site_id == Site.id)
+        .where(Site.project_id == project.id)
+    )
+
+    assert first["sites"] == 5
+    assert first["audio_files"] == 10
+    assert second["audio_files"] == 10
+    assert raw_output.payload["mode"] == "simulated_pilot"
+    assert raw_output.payload["simulation_tag"] == SIMULATION_TAG
+
+
 def test_wav_upload_rejects_non_wav(client, db_session):
     site = db_session.scalar(select(Site))
 

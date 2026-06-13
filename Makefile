@@ -2,7 +2,7 @@ PYTHON ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 
-.PHONY: venv install birdnet-install birdnet-check birdnet-sample birdnet-verify test smoke migrate seed dev-db serve frontend worker clean
+.PHONY: venv install birdnet-install birdnet-check birdnet-sample birdnet-verify simulate-pilot test smoke migrate seed dev-db serve frontend worker clean
 
 venv:
 	$(PYTHON) -m venv $(VENV)
@@ -21,6 +21,9 @@ birdnet-sample:
 
 birdnet-verify:
 	$(BIN)/python scripts/verify_birdnet_real.py
+
+simulate-pilot:
+	$(BIN)/python scripts/simulate_central_park_pilot.py
 
 test:
 	$(BIN)/python -m pytest -q
