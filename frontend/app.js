@@ -13,6 +13,7 @@ const state = {
   dashboard: null,
   summary: null,
   metrics: null,
+  readiness: null,
   birdnetStatus: null,
   map: null,
   mapMarkers: [],
@@ -43,14 +44,13 @@ function shortId(id) {
 
 async function loadData() {
   $("#systemStatus").textContent = "Syncing API";
-  const [organizations, projects, sites, audioFiles, jobs, detections, rawOutputs, reports, birdnetStatus] = await Promise.all([
+  const [organizations, projects, sites, audioFiles, jobs, detections, reports, birdnetStatus] = await Promise.all([
     api("/organizations"),
     api("/projects"),
     api("/sites"),
     api("/audio-files"),
     api("/processing-jobs"),
     api("/detections"),
-    api("/raw-model-outputs"),
     api("/reports"),
     api("/integrations/birdnet/status"),
   ]);
@@ -64,10 +64,11 @@ async function loadData() {
   state.audioFiles = audioFiles;
   state.jobs = jobs;
   state.detections = detections;
-  state.rawOutputs = rawOutputs;
   state.reports = reports;
   state.birdnetStatus = birdnetStatus;
   state.dashboard = state.selectedProjectId ? await api(`/projects/${state.selectedProjectId}/dashboard`) : null;
+  state.readiness = state.selectedProjectId ? await api(`/projects/${state.selectedProjectId}/readiness`) : null;
+  state.rawOutputs = state.selectedProjectId ? await api(`/raw-model-outputs?project_id=${state.selectedProjectId}`) : [];
   state.summary = state.dashboard?.summary || null;
   state.metrics = state.dashboard?.metrics || null;
   if (state.dashboard) {
@@ -86,6 +87,7 @@ function render() {
   renderProof();
   renderSummary();
   renderIntegration();
+  renderReadiness();
   renderJobs();
   renderDetections();
   renderRawOutputs();
@@ -230,6 +232,36 @@ function renderIntegration() {
   $("#heroReviewState").textContent = unreviewed;
 }
 
+function renderReadiness() {
+  const readiness = state.readiness || {};
+  const counts = readiness.counts || {};
+  const reviewCounts = readiness.review_counts || {};
+  const levelLabels = {
+    simulation: "Simulation",
+    real_inference: "Real inference",
+    workflow: "Workflow",
+  };
+  $("#readinessScore").textContent = readiness.readiness_score == null ? "--" : `${Math.round(readiness.readiness_score)}%`;
+  $("#readinessLevel").textContent = levelLabels[readiness.evidence_level] || "Workflow";
+  $("#readinessMessage").textContent = readiness.message || "Checking project evidence.";
+  $("#realOutputCount").textContent = counts.real_birdnet_outputs || 0;
+  $("#simulatedOutputCount").textContent = counts.simulated_outputs || 0;
+  $("#confirmedEvidenceCount").textContent = reviewCounts.confirmed || 0;
+  $("#readinessChecks").innerHTML =
+    (readiness.checks || [])
+      .map(
+        (check) => `
+          <article class="readiness-check ${check.status}">
+            <span>${check.status}</span>
+            <strong>${check.label}</strong>
+            <em>${check.detail}</em>
+          </article>
+        `,
+      )
+      .join("") ||
+    `<article class="readiness-check incomplete"><span>pending</span><strong>No project evidence yet</strong><em>Create or select a project.</em></article>`;
+}
+
 function renderSummary() {
   const summary = state.summary || {};
   $("#activityScore").textContent = Math.round(summary.biodiversity_activity_score || 0);
@@ -307,7 +339,7 @@ function renderRawOutputs() {
       .map(
         (output) => `
           <div class="raw-item">
-            <strong>${output.output_format}</strong>
+            <strong>${output.output_format} · ${output.payload?.mode || "unknown"}</strong>
             <code>${JSON.stringify(output.payload)}</code>
           </div>
         `,

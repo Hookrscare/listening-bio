@@ -377,6 +377,26 @@ def test_project_dashboard_contract(client, db_session):
     assert body["top_species"][0]["label"] == "American Robin"
 
 
+def test_project_readiness_reports_real_vs_simulated_evidence(client, db_session):
+    from scripts.simulate_central_park_pilot import PROJECT_EXTERNAL_ID, simulate
+
+    simulate(db_session, recordings_per_site=2, seed_value=7)
+    project = db_session.scalar(select(Project).where(Project.external_id == PROJECT_EXTERNAL_ID))
+
+    response = client.get(f"/projects/{project.id}/readiness")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["evidence_level"] == "simulation"
+    assert body["simulation_only"] is True
+    assert body["counts"]["sites"] == 5
+    assert body["counts"]["audio_files"] == 10
+    assert body["counts"]["simulated_outputs"] == 10
+    assert body["counts"]["real_birdnet_outputs"] == 0
+    assert body["review_counts"]["confirmed"] > 0
+    assert "Simulation rehearsal only" in body["message"]
+
+
 def test_biodiversity_metrics_and_csv_exports(client, db_session):
     project = db_session.scalar(select(Project))
     site = db_session.scalar(select(Site))

@@ -19,6 +19,7 @@
 - Static frontend prototype with dashboard, habitat map, WAV intake, processing, detections, raw-output evidence, CSV export, and report shells
 - Partner-facing pilot page for collaboration conversations
 - Scoped/detail API endpoints, project dashboard aggregate, and detection review mutation
+- Project readiness endpoint that separates real BirdNET evidence from simulation/demo data
 - Backend tests for health, metadata import, seed idempotency, mock processing, summaries, and Alembic configuration
 - Real public recording demo script using Xeno-canto `XC364638`
 - Central Park pilot simulation dataset for partner-demo rehearsal
