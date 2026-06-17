@@ -4,6 +4,14 @@ BioSignal now exposes a readiness layer for each project:
 
 `GET /projects/{project_id}/readiness`
 
+It also exposes a partner-ready evidence package:
+
+`GET /projects/{project_id}/evidence-package`
+
+and a Markdown export:
+
+`GET /exports/evidence-package.md?project_id={project_id}`
+
 This endpoint is designed for partner and grant demos. It answers a simple question:
 
 Can this project currently support a credible pilot evidence conversation?
@@ -30,3 +38,5 @@ The product should never blur simulation, demo data, and real field evidence. Th
 For partner demos, use the readiness panel to say:
 
 “This is what is working today, this is what is simulated, and this is what must be replaced with real field recordings before we make ecological claims.”
+
+Use the Markdown evidence package as the first draft for a partner memo, grant appendix, or pilot debrief. It is intentionally conservative: it includes disclaimers, readiness blockers, top candidate species, site summaries, and recommended next actions.

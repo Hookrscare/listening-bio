@@ -507,6 +507,7 @@ function bindEvents() {
   $("#exportDetectionsButton").addEventListener("click", () => openExport("detections"));
   $("#exportSitesButton").addEventListener("click", () => openExport("sites"));
   $("#exportAudioButton").addEventListener("click", () => openExport("audio-files"));
+  $("#exportEvidenceButton").addEventListener("click", () => openExport("evidence-package.md"));
   $("#detectionsTable").addEventListener("click", async (event) => {
     const target = event.target.closest("[data-review]");
     if (!target) return;

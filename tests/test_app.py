@@ -397,6 +397,27 @@ def test_project_readiness_reports_real_vs_simulated_evidence(client, db_session
     assert "Simulation rehearsal only" in body["message"]
 
 
+def test_project_evidence_package_and_markdown_export(client, db_session):
+    from scripts.simulate_central_park_pilot import PROJECT_EXTERNAL_ID, simulate
+
+    simulate(db_session, recordings_per_site=2, seed_value=7)
+    project = db_session.scalar(select(Project).where(Project.external_id == PROJECT_EXTERNAL_ID))
+
+    package_response = client.get(f"/projects/{project.id}/evidence-package")
+    markdown_response = client.get(f"/exports/evidence-package.md?project_id={project.id}")
+
+    assert package_response.status_code == 200
+    package = package_response.json()
+    assert package["readiness"]["evidence_level"] == "simulation"
+    assert package["summary"]["site_count"] == 5
+    assert package["top_species"]
+    assert "simulated pilot rehearsal" in package["partner_language"]
+    assert markdown_response.status_code == 200
+    assert "text/markdown" in markdown_response.headers["content-type"]
+    assert "# Central Park Acoustic Biodiversity Pilot Simulation Evidence Package" in markdown_response.text
+    assert "Recommended Next Actions" in markdown_response.text
+
+
 def test_biodiversity_metrics_and_csv_exports(client, db_session):
     project = db_session.scalar(select(Project))
     site = db_session.scalar(select(Site))

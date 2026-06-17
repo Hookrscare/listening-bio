@@ -37,6 +37,234 @@ from backend.app.workers.processing_worker import run_job_once
 router = APIRouter()
 
 
+def _project_readiness_data(project_id: str, db: Session) -> dict[str, object]:
+    project = db.get(Project, project_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
+
+    audio_rows = list(db.scalars(select(AudioFile).join(Site).where(Site.project_id == project_id)))
+    detection_rows = list(db.scalars(select(Detection).join(AudioFile).join(Site).where(Site.project_id == project_id)))
+    raw_rows = list(db.scalars(select(RawModelOutput).join(AudioFile).join(Site).where(Site.project_id == project_id)))
+    site_count = db.scalar(select(func.count(Site.id)).where(Site.project_id == project_id)) or 0
+    job_counts = {
+        status: count
+        for status, count in db.execute(
+            select(ProcessingJob.status, func.count(ProcessingJob.id))
+            .join(AudioFile)
+            .join(Site)
+            .where(Site.project_id == project_id)
+            .group_by(ProcessingJob.status)
+        ).all()
+    }
+
+    modes = [str(row.payload.get("mode", "unknown")) for row in raw_rows]
+    real_outputs = sum(1 for mode in modes if mode == "configured")
+    no_detection_outputs = sum(1 for mode in modes if mode == "configured_no_detections")
+    simulated_outputs = sum(1 for mode in modes if "simulated" in mode)
+    simulation_only = bool(raw_rows) and real_outputs == 0 and simulated_outputs > 0
+    review_counts = {
+        status: sum(1 for detection in detection_rows if detection.review_status == status)
+        for status in ("confirmed", "unreviewed", "rejected")
+    }
+    species_labels = {detection.label for detection in detection_rows if detection.detection_type == "species"}
+    local_audio = sum(1 for audio in audio_rows if audio.storage_uri.startswith("file://"))
+    simulated_audio = sum(1 for audio in audio_rows if audio.storage_uri.startswith("simulation://"))
+    external_audio = len(audio_rows) - local_audio - simulated_audio
+
+    readiness_checks = [
+        {
+            "label": "Project and mapped sites",
+            "status": "complete" if site_count >= 3 else "incomplete",
+            "detail": f"{site_count} site(s) configured",
+        },
+        {
+            "label": "Audio survey effort",
+            "status": "complete" if len(audio_rows) >= 50 else "partial" if audio_rows else "incomplete",
+            "detail": f"{len(audio_rows)} recording record(s)",
+        },
+        {
+            "label": "Model output provenance",
+            "status": "complete" if raw_rows else "incomplete",
+            "detail": f"{len(raw_rows)} raw model payload(s) retained",
+        },
+        {
+            "label": "Real BirdNET inference",
+            "status": "complete" if real_outputs else "partial" if no_detection_outputs else "incomplete",
+            "detail": f"{real_outputs} configured output(s), {simulated_outputs} simulated output(s)",
+        },
+        {
+            "label": "Human review evidence",
+            "status": "complete" if review_counts["confirmed"] >= 20 else "partial" if review_counts["confirmed"] else "incomplete",
+            "detail": f"{review_counts['confirmed']} confirmed, {review_counts['rejected']} rejected",
+        },
+        {
+            "label": "Export-ready detections",
+            "status": "complete" if detection_rows else "incomplete",
+            "detail": f"{len(detection_rows)} detection row(s)",
+        },
+    ]
+    score_weights = {"complete": 1.0, "partial": 0.5, "incomplete": 0.0}
+    readiness_score = round(
+        sum(score_weights[check["status"]] for check in readiness_checks) / len(readiness_checks) * 100,
+        1,
+    )
+    evidence_level = "simulation" if simulation_only else "real_inference" if real_outputs else "workflow"
+    blockers = [check["label"] for check in readiness_checks if check["status"] != "complete"]
+
+    return {
+        "project_id": project.id,
+        "project_name": project.name,
+        "evidence_level": evidence_level,
+        "readiness_score": readiness_score,
+        "simulation_only": simulation_only,
+        "counts": {
+            "sites": site_count,
+            "audio_files": len(audio_rows),
+            "detections": len(detection_rows),
+            "species_candidates": len(species_labels),
+            "raw_model_outputs": len(raw_rows),
+            "real_birdnet_outputs": real_outputs,
+            "configured_no_detection_outputs": no_detection_outputs,
+            "simulated_outputs": simulated_outputs,
+            "local_audio_files": local_audio,
+            "simulated_audio_files": simulated_audio,
+            "external_audio_records": external_audio,
+        },
+        "review_counts": review_counts,
+        "job_counts": job_counts,
+        "checks": readiness_checks,
+        "blockers": blockers,
+        "message": (
+            "Simulation rehearsal only; replace with approved field WAV recordings before making ecological claims."
+            if simulation_only
+            else "Real inference evidence is present; continue expanding field recordings and expert review."
+            if real_outputs
+            else "Workflow is ready; configure BirdNET and upload real WAV recordings for ecological evidence."
+        ),
+    }
+
+
+def _project_evidence_package(project_id: str, db: Session) -> dict[str, object]:
+    project = db.get(Project, project_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
+
+    readiness = _project_readiness_data(project_id, db)
+    summary = get_project_summary(db, project_id)
+    metrics = get_biodiversity_metrics(db, project_id)
+    site_rows = db.execute(
+        select(
+            Site.id,
+            Site.name,
+            Site.habitat_type,
+            Site.latitude,
+            Site.longitude,
+            func.count(func.distinct(AudioFile.id)).label("audio_count"),
+            func.count(Detection.id).label("detection_count"),
+        )
+        .outerjoin(AudioFile, AudioFile.site_id == Site.id)
+        .outerjoin(Detection, Detection.audio_file_id == AudioFile.id)
+        .where(Site.project_id == project_id)
+        .group_by(Site.id, Site.name, Site.habitat_type, Site.latitude, Site.longitude)
+        .order_by(Site.name)
+    ).all()
+    top_species = [
+        {"label": label, "count": count}
+        for label, count in db.execute(
+            select(Detection.label, func.count(Detection.id))
+            .join(AudioFile)
+            .join(Site)
+            .where(Site.project_id == project_id, Detection.detection_type == "species")
+            .group_by(Detection.label)
+            .order_by(func.count(Detection.id).desc())
+            .limit(10)
+        ).all()
+    ]
+    recommendations = [
+        "Replace simulated records with approved field WAV recordings."
+        if readiness["simulation_only"]
+        else "Expand the real recording dataset across repeated site visits.",
+        "Run BirdNET with site coordinates, recording date, and documented confidence threshold.",
+        "Review a representative detection sample with partner or trained reviewer input.",
+        "Export detections, sites, and audio records before each partner review meeting.",
+    ]
+    if "Real BirdNET inference" in readiness["blockers"]:
+        recommendations.insert(0, "Capture at least 50 real WAV recordings and run configured BirdNET inference.")
+
+    return {
+        "project": {
+            "id": project.id,
+            "name": project.name,
+            "description": project.description,
+            "status": project.status,
+        },
+        "readiness": readiness,
+        "summary": summary.model_dump() if summary else None,
+        "metrics": metrics.model_dump() if metrics else None,
+        "sites": [
+            {
+                "id": site_id,
+                "name": name,
+                "habitat_type": habitat_type,
+                "latitude": latitude,
+                "longitude": longitude,
+                "audio_count": audio_count,
+                "detection_count": detection_count,
+            }
+            for site_id, name, habitat_type, latitude, longitude, audio_count, detection_count in site_rows
+        ],
+        "top_species": top_species,
+        "recommendations": recommendations,
+        "partner_language": (
+            "This is a simulated pilot rehearsal, not a validated ecological result."
+            if readiness["simulation_only"]
+            else "This package includes real inference evidence and should still be reviewed before ecological claims."
+        ),
+        "disclaimer": "Prototype indicators only; not scientifically validated biodiversity scores.",
+    }
+
+
+def _evidence_markdown(package: dict[str, object]) -> str:
+    readiness = package["readiness"]
+    summary = package["summary"] or {}
+    metrics = package["metrics"] or {}
+    project = package["project"]
+    lines = [
+        f"# {project['name']} Evidence Package",
+        "",
+        f"Status: {project['status']}",
+        f"Evidence level: {readiness['evidence_level']}",
+        f"Readiness score: {readiness['readiness_score']}%",
+        "",
+        "## Important Disclaimer",
+        str(package["disclaimer"]),
+        str(package["partner_language"]),
+        "",
+        "## Summary",
+        f"- Sites: {summary.get('site_count', 0)}",
+        f"- Audio records: {summary.get('audio_file_count', 0)}",
+        f"- Detections: {summary.get('detection_count', 0)}",
+        f"- Candidate species richness: {summary.get('species_richness', 0)}",
+        f"- Recording hours: {metrics.get('recording_hours', 0)}",
+        f"- Confirmed detection percent: {metrics.get('confirmed_detection_percent', 0)}%",
+        "",
+        "## Readiness Checks",
+    ]
+    for check in readiness["checks"]:
+        lines.append(f"- {check['status'].upper()}: {check['label']} — {check['detail']}")
+    lines.extend(["", "## Top Species Candidates"])
+    for item in package["top_species"]:
+        lines.append(f"- {item['label']}: {item['count']}")
+    lines.extend(["", "## Sites"])
+    for site in package["sites"]:
+        lines.append(f"- {site['name']} ({site['habitat_type']}): {site['audio_count']} audio, {site['detection_count']} detections")
+    lines.extend(["", "## Recommended Next Actions"])
+    for item in package["recommendations"]:
+        lines.append(f"- {item}")
+    lines.append("")
+    return "\n".join(lines)
+
+
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "app": get_settings().app_name}
@@ -151,120 +379,12 @@ def project_dashboard(project_id: str, db: Session = Depends(get_db)) -> Project
 
 @router.get("/projects/{project_id}/readiness")
 def project_readiness(project_id: str, db: Session = Depends(get_db)) -> dict[str, object]:
-    project = db.get(Project, project_id)
-    if project is None:
-        raise HTTPException(status_code=404, detail="Project not found.")
+    return _project_readiness_data(project_id, db)
 
-    audio_rows = list(
-        db.scalars(select(AudioFile).join(Site).where(Site.project_id == project_id))
-    )
-    detection_rows = list(
-        db.scalars(select(Detection).join(AudioFile).join(Site).where(Site.project_id == project_id))
-    )
-    raw_rows = list(
-        db.scalars(select(RawModelOutput).join(AudioFile).join(Site).where(Site.project_id == project_id))
-    )
-    site_count = db.scalar(select(func.count(Site.id)).where(Site.project_id == project_id)) or 0
-    job_counts = {
-        status: count
-        for status, count in db.execute(
-            select(ProcessingJob.status, func.count(ProcessingJob.id))
-            .join(AudioFile)
-            .join(Site)
-            .where(Site.project_id == project_id)
-            .group_by(ProcessingJob.status)
-        ).all()
-    }
 
-    modes = [str(row.payload.get("mode", "unknown")) for row in raw_rows]
-    real_outputs = sum(1 for mode in modes if mode == "configured")
-    no_detection_outputs = sum(1 for mode in modes if mode == "configured_no_detections")
-    simulated_outputs = sum(1 for mode in modes if "simulated" in mode)
-    simulation_only = bool(raw_rows) and real_outputs == 0 and simulated_outputs > 0
-    review_counts = {
-        status: sum(1 for detection in detection_rows if detection.review_status == status)
-        for status in ("confirmed", "unreviewed", "rejected")
-    }
-    species_labels = {
-        detection.label
-        for detection in detection_rows
-        if detection.detection_type == "species"
-    }
-    local_audio = sum(1 for audio in audio_rows if audio.storage_uri.startswith("file://"))
-    simulated_audio = sum(1 for audio in audio_rows if audio.storage_uri.startswith("simulation://"))
-    external_audio = len(audio_rows) - local_audio - simulated_audio
-
-    readiness_checks = [
-        {
-            "label": "Project and mapped sites",
-            "status": "complete" if site_count >= 3 else "incomplete",
-            "detail": f"{site_count} site(s) configured",
-        },
-        {
-            "label": "Audio survey effort",
-            "status": "complete" if len(audio_rows) >= 50 else "partial" if audio_rows else "incomplete",
-            "detail": f"{len(audio_rows)} recording record(s)",
-        },
-        {
-            "label": "Model output provenance",
-            "status": "complete" if raw_rows else "incomplete",
-            "detail": f"{len(raw_rows)} raw model payload(s) retained",
-        },
-        {
-            "label": "Real BirdNET inference",
-            "status": "complete" if real_outputs else "partial" if no_detection_outputs else "incomplete",
-            "detail": f"{real_outputs} configured output(s), {simulated_outputs} simulated output(s)",
-        },
-        {
-            "label": "Human review evidence",
-            "status": "complete" if review_counts["confirmed"] >= 20 else "partial" if review_counts["confirmed"] else "incomplete",
-            "detail": f"{review_counts['confirmed']} confirmed, {review_counts['rejected']} rejected",
-        },
-        {
-            "label": "Export-ready detections",
-            "status": "complete" if detection_rows else "incomplete",
-            "detail": f"{len(detection_rows)} detection row(s)",
-        },
-    ]
-    score_weights = {"complete": 1.0, "partial": 0.5, "incomplete": 0.0}
-    readiness_score = round(
-        sum(score_weights[check["status"]] for check in readiness_checks) / len(readiness_checks) * 100,
-        1,
-    )
-    evidence_level = "simulation" if simulation_only else "real_inference" if real_outputs else "workflow"
-    blockers = [check["label"] for check in readiness_checks if check["status"] != "complete"]
-
-    return {
-        "project_id": project.id,
-        "project_name": project.name,
-        "evidence_level": evidence_level,
-        "readiness_score": readiness_score,
-        "simulation_only": simulation_only,
-        "counts": {
-            "sites": site_count,
-            "audio_files": len(audio_rows),
-            "detections": len(detection_rows),
-            "species_candidates": len(species_labels),
-            "raw_model_outputs": len(raw_rows),
-            "real_birdnet_outputs": real_outputs,
-            "configured_no_detection_outputs": no_detection_outputs,
-            "simulated_outputs": simulated_outputs,
-            "local_audio_files": local_audio,
-            "simulated_audio_files": simulated_audio,
-            "external_audio_records": external_audio,
-        },
-        "review_counts": review_counts,
-        "job_counts": job_counts,
-        "checks": readiness_checks,
-        "blockers": blockers,
-        "message": (
-            "Simulation rehearsal only; replace with approved field WAV recordings before making ecological claims."
-            if simulation_only
-            else "Real inference evidence is present; continue expanding field recordings and expert review."
-            if real_outputs
-            else "Workflow is ready; configure BirdNET and upload real WAV recordings for ecological evidence."
-        ),
-    }
+@router.get("/projects/{project_id}/evidence-package")
+def project_evidence_package(project_id: str, db: Session = Depends(get_db)) -> dict[str, object]:
+    return _project_evidence_package(project_id, db)
 
 
 @router.get("/sites", response_model=list[SiteRead])
@@ -623,4 +743,14 @@ def export_audio_files_csv(project_id: str, db: Session = Depends(get_db)) -> Re
             for audio_file in audio_files
         ],
         ["audio_file_id", "site_id", "file_name", "storage_uri", "duration_seconds", "status", "created_at"],
+    )
+
+
+@router.get("/exports/evidence-package.md")
+def export_evidence_package_markdown(project_id: str, db: Session = Depends(get_db)) -> Response:
+    package = _project_evidence_package(project_id, db)
+    return Response(
+        content=_evidence_markdown(package),
+        media_type="text/markdown",
+        headers={"Content-Disposition": 'attachment; filename="evidence-package.md"'},
     )
