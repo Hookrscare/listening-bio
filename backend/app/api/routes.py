@@ -1,4 +1,5 @@
 import csv
+import json
 from io import StringIO
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Response, UploadFile
@@ -652,6 +653,14 @@ def _csv_response(filename: str, rows: list[dict[str, object]], fieldnames: list
     )
 
 
+def _geojson_response(filename: str, features: list[dict[str, object]]) -> Response:
+    return Response(
+        content=json.dumps({"type": "FeatureCollection", "features": features}, indent=2),
+        media_type="application/geo+json",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
 @router.get("/exports/detections.csv")
 def export_detections_csv(project_id: str, db: Session = Depends(get_db)) -> Response:
     rows = db.execute(
@@ -744,6 +753,63 @@ def export_audio_files_csv(project_id: str, db: Session = Depends(get_db)) -> Re
         ],
         ["audio_file_id", "site_id", "file_name", "storage_uri", "duration_seconds", "status", "created_at"],
     )
+
+
+@router.get("/exports/sites.geojson")
+def export_sites_geojson(project_id: str, db: Session = Depends(get_db)) -> Response:
+    sites = list(db.scalars(select(Site).where(Site.project_id == project_id).order_by(Site.name)))
+    features = [
+        {
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [site.longitude, site.latitude]},
+            "properties": {
+                "site_id": site.id,
+                "project_id": site.project_id,
+                "name": site.name,
+                "habitat_type": site.habitat_type,
+            },
+        }
+        for site in sites
+        if site.latitude is not None and site.longitude is not None
+    ]
+    return _geojson_response("sites.geojson", features)
+
+
+@router.get("/exports/detections.geojson")
+def export_detections_geojson(project_id: str, db: Session = Depends(get_db)) -> Response:
+    rows = db.execute(
+        select(Project, Site, AudioFile, Detection)
+        .join(Site, Site.project_id == Project.id)
+        .join(AudioFile, AudioFile.site_id == Site.id)
+        .join(Detection, Detection.audio_file_id == AudioFile.id)
+        .where(Project.id == project_id, Site.latitude.is_not(None), Site.longitude.is_not(None))
+        .order_by(Detection.created_at.desc())
+    ).all()
+    features = [
+        {
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [site.longitude, site.latitude]},
+            "properties": {
+                "project_id": project.id,
+                "project_name": project.name,
+                "site_id": site.id,
+                "site_name": site.name,
+                "habitat_type": site.habitat_type,
+                "audio_file_id": audio_file.id,
+                "file_name": audio_file.file_name,
+                "recorded_at": audio_file.recorded_at.isoformat() if audio_file.recorded_at else None,
+                "detection_id": detection.id,
+                "label": detection.label,
+                "detection_type": detection.detection_type,
+                "confidence": detection.confidence,
+                "start_seconds": detection.start_seconds,
+                "end_seconds": detection.end_seconds,
+                "review_status": detection.review_status,
+            },
+        }
+        for project, site, audio_file, detection in rows
+    ]
+    return _geojson_response("detections.geojson", features)
 
 
 @router.get("/exports/evidence-package.md")

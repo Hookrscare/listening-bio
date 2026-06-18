@@ -40,3 +40,10 @@ For partner demos, use the readiness panel to say:
 “This is what is working today, this is what is simulated, and this is what must be replaced with real field recordings before we make ecological claims.”
 
 Use the Markdown evidence package as the first draft for a partner memo, grant appendix, or pilot debrief. It is intentionally conservative: it includes disclaimers, readiness blockers, top candidate species, site summaries, and recommended next actions.
+
+For GIS workflows, export:
+
+- `GET /exports/sites.geojson?project_id={project_id}`
+- `GET /exports/detections.geojson?project_id={project_id}`
+
+These exports are suitable for tools that consume GeoJSON point features, including common web maps and desktop GIS workflows.

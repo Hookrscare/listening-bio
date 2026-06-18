@@ -1092,7 +1092,7 @@ td {
 }
 
 .export-actions {
-  grid-template-columns: repeat(3, minmax(0, 180px));
+  grid-template-columns: repeat(5, minmax(0, 180px));
   margin: 0 0 14px;
 }
 
@@ -1135,6 +1135,7 @@ td {
   .readiness-main,
   .readiness-grid,
   .readiness-foot,
+  .export-actions,
   .site-list,
   .project-command,
   .project-form,

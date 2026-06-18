@@ -128,7 +128,9 @@ Open `http://127.0.0.1:8000/app/` and select `Central Park Acoustic Biodiversity
 - `GET /reports`
 - `GET /reports/{report_id}`
 - `GET /exports/detections.csv?project_id={project_id}`
+- `GET /exports/detections.geojson?project_id={project_id}`
 - `GET /exports/sites.csv?project_id={project_id}`
+- `GET /exports/sites.geojson?project_id={project_id}`
 - `GET /exports/audio-files.csv?project_id={project_id}`
 - `GET /exports/evidence-package.md?project_id={project_id}`
 

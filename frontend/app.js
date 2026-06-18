@@ -490,7 +490,8 @@ async function createReportShell() {
 
 function openExport(kind) {
   if (!state.selectedProjectId) return;
-  window.open(`${API_BASE}/exports/${kind}.csv?project_id=${state.selectedProjectId}`, "_blank", "noopener");
+  const extension = kind.includes(".") ? "" : ".csv";
+  window.open(`${API_BASE}/exports/${kind}${extension}?project_id=${state.selectedProjectId}`, "_blank", "noopener");
 }
 
 function bindEvents() {
@@ -505,7 +506,9 @@ function bindEvents() {
   $("#audioForm").addEventListener("submit", createAudioRecord);
   $("#createReportButton").addEventListener("click", createReportShell);
   $("#exportDetectionsButton").addEventListener("click", () => openExport("detections"));
+  $("#exportDetectionsGeoJsonButton").addEventListener("click", () => openExport("detections.geojson"));
   $("#exportSitesButton").addEventListener("click", () => openExport("sites"));
+  $("#exportSitesGeoJsonButton").addEventListener("click", () => openExport("sites.geojson"));
   $("#exportAudioButton").addEventListener("click", () => openExport("audio-files"));
   $("#exportEvidenceButton").addEventListener("click", () => openExport("evidence-package.md"));
   $("#detectionsTable").addEventListener("click", async (event) => {

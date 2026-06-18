@@ -21,6 +21,7 @@
 - Scoped/detail API endpoints, project dashboard aggregate, and detection review mutation
 - Project readiness endpoint that separates real BirdNET evidence from simulation/demo data
 - Partner evidence package JSON and Markdown export for pilot/grant conversations
+- GeoJSON exports for sites and detections for GIS/partner workflows
 - Backend tests for health, metadata import, seed idempotency, mock processing, summaries, and Alembic configuration
 - Real public recording demo script using Xeno-canto `XC364638`
 - Central Park pilot simulation dataset for partner-demo rehearsal

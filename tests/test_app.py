@@ -1,4 +1,5 @@
 import sys
+import json
 
 from sqlalchemy import select
 
@@ -416,6 +417,27 @@ def test_project_evidence_package_and_markdown_export(client, db_session):
     assert "text/markdown" in markdown_response.headers["content-type"]
     assert "# Central Park Acoustic Biodiversity Pilot Simulation Evidence Package" in markdown_response.text
     assert "Recommended Next Actions" in markdown_response.text
+
+
+def test_geojson_exports_are_map_ready(client, db_session):
+    from scripts.simulate_central_park_pilot import PROJECT_EXTERNAL_ID, simulate
+
+    simulate(db_session, recordings_per_site=1, seed_value=9)
+    project = db_session.scalar(select(Project).where(Project.external_id == PROJECT_EXTERNAL_ID))
+
+    sites_response = client.get(f"/exports/sites.geojson?project_id={project.id}")
+    detections_response = client.get(f"/exports/detections.geojson?project_id={project.id}")
+
+    assert sites_response.status_code == 200
+    assert "application/geo+json" in sites_response.headers["content-type"]
+    sites_body = json.loads(sites_response.text)
+    assert sites_body["type"] == "FeatureCollection"
+    assert len(sites_body["features"]) == 5
+    assert sites_body["features"][0]["geometry"]["type"] == "Point"
+    assert detections_response.status_code == 200
+    detections_body = json.loads(detections_response.text)
+    assert detections_body["features"]
+    assert {"label", "confidence", "review_status"} <= set(detections_body["features"][0]["properties"])
 
 
 def test_biodiversity_metrics_and_csv_exports(client, db_session):
