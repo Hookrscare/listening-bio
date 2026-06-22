@@ -22,6 +22,7 @@
 - Project readiness endpoint that separates real BirdNET evidence from simulation/demo data
 - Partner evidence package JSON and Markdown export for pilot/grant conversations
 - GeoJSON exports for sites and detections for GIS/partner workflows
+- Dashboard/export evidence provenance contract that labels workflow, simulation, and real-inference states
 - Backend tests for health, metadata import, seed idempotency, mock processing, summaries, and Alembic configuration
 - Real public recording demo script using Xeno-canto `XC364638`
 - Central Park pilot simulation dataset for partner-demo rehearsal

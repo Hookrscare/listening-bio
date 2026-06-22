@@ -88,7 +88,7 @@
               </div>
               <div>
                 <span>Exports</span>
-                <strong>CSV ready</strong>
+                <strong id="heroExportState">CSV ready</strong>
               </div>
             </div>
             <div class="visual-caption">
@@ -167,7 +167,7 @@
           </div>
           <div class="proof-card">
             <span>Metric status</span>
-            <strong>Prototype only</strong>
+            <strong id="metricStatus">Prototype only</strong>
           </div>
           <div class="proof-card">
             <span>Recording hours</span>
@@ -193,6 +193,20 @@
             <div class="readiness-score">
               <span id="readinessLevel">Workflow</span>
               <strong id="readinessScore">--</strong>
+            </div>
+          </div>
+          <div class="provenance-strip">
+            <div>
+              <span>Claim boundary</span>
+              <strong id="claimStatus">Checking</strong>
+            </div>
+            <div>
+              <span>Evidence disclaimer</span>
+              <strong id="evidenceDisclaimer">Loading evidence provenance.</strong>
+            </div>
+            <div>
+              <span>Next proof</span>
+              <strong id="nextProof">Loading required proof.</strong>
             </div>
           </div>
           <div class="readiness-grid" id="readinessChecks"></div>

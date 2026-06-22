@@ -372,6 +372,9 @@ def test_project_dashboard_contract(client, db_session):
     assert body["project"]["id"] == project.id
     assert body["summary"]["metric_label"] == "prototype_indicator"
     assert body["metrics"]["metric_label"] == "prototype_indicator"
+    assert body["provenance"]["evidence_level"] == "simulation"
+    assert body["provenance"]["can_make_ecological_claims"] is False
+    assert body["provenance"]["next_required_proof"]
     assert body["sites"][0]["project_id"] == project.id
     assert body["recent_detections"]
     assert body["job_counts_by_status"]["completed"] >= 1
@@ -390,6 +393,9 @@ def test_project_readiness_reports_real_vs_simulated_evidence(client, db_session
     body = response.json()
     assert body["evidence_level"] == "simulation"
     assert body["simulation_only"] is True
+    assert body["can_make_ecological_claims"] is False
+    assert body["claim_status"] == "Demo rehearsal only"
+    assert "Do not present" in body["disclaimer"]
     assert body["counts"]["sites"] == 5
     assert body["counts"]["audio_files"] == 10
     assert body["counts"]["simulated_outputs"] == 10
@@ -437,7 +443,10 @@ def test_geojson_exports_are_map_ready(client, db_session):
     assert detections_response.status_code == 200
     detections_body = json.loads(detections_response.text)
     assert detections_body["features"]
-    assert {"label", "confidence", "review_status"} <= set(detections_body["features"][0]["properties"])
+    assert {"label", "confidence", "review_status", "evidence_level", "claim_status"} <= set(
+        detections_body["features"][0]["properties"]
+    )
+    assert detections_body["features"][0]["properties"]["evidence_level"] == "simulation"
 
 
 def test_biodiversity_metrics_and_csv_exports(client, db_session):
@@ -462,6 +471,7 @@ def test_biodiversity_metrics_and_csv_exports(client, db_session):
     assert csv_response.status_code == 200
     assert "text/csv" in csv_response.headers["content-type"]
     assert "American Robin" in csv_response.text
+    assert "evidence_level" in csv_response.text
 
 
 def test_create_project_endpoint(client, db_session):

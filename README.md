@@ -61,6 +61,8 @@ Open `http://127.0.0.1:8000/app`. The UI connects to the FastAPI backend at `htt
 
 Use the Survey Intake file picker to upload a local `.wav`; this queues a `birdnet_analysis` job. Without a configured BirdNET command, the adapter stores clearly marked simulated BirdNET-style detections so the workflow remains testable.
 
+The dashboard and exports include evidence provenance fields that separate `workflow`, `simulation`, and `real_inference` states. Use those labels when speaking with partners: simulated pilot data is useful for rehearsal, but only configured BirdNET output from real WAV recordings should be treated as ecological evidence.
+
 The first partner-facing pilot page is available at `http://127.0.0.1:8000/app/partners.html`.
 
 ## BirdNET Adapter

@@ -553,6 +553,36 @@ button {
   gap: 10px;
 }
 
+.provenance-strip {
+  display: grid;
+  grid-template-columns: 0.8fr 1.35fr 1.35fr;
+  gap: 10px;
+}
+
+.provenance-strip div {
+  min-height: 108px;
+  padding: 14px;
+  border: 1px solid rgba(23, 33, 29, 0.1);
+  border-radius: 8px;
+  background: rgba(8, 19, 15, 0.88);
+}
+
+.provenance-strip span {
+  display: block;
+  color: #9ee2d9;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.provenance-strip strong {
+  display: block;
+  margin-top: 8px;
+  color: white;
+  font-size: 0.95rem;
+  line-height: 1.42;
+}
+
 .readiness-check {
   min-height: 112px;
   padding: 14px;
@@ -1134,6 +1164,7 @@ td {
   .proof-grid,
   .readiness-main,
   .readiness-grid,
+  .provenance-strip,
   .readiness-foot,
   .export-actions,
   .site-list,

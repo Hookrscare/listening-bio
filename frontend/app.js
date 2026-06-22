@@ -215,6 +215,7 @@ function renderProof() {
 
 function renderIntegration() {
   const status = state.birdnetStatus || {};
+  const provenance = state.dashboard?.provenance || {};
   const mode = status.mode || "unknown";
   const birdnetMode = $("#birdnetMode");
   birdnetMode.textContent = mode === "configured" ? "Configured" : "Simulated";
@@ -228,12 +229,14 @@ function renderIntegration() {
   const unreviewed = state.detections.filter((detection) => detection.review_status === "unreviewed").length;
   $("#operationsState").textContent = failedJobs ? `${failedJobs} job failed` : queuedJobs ? `${queuedJobs} queued` : "Stable";
   $("#reviewQueueCount").textContent = unreviewed;
-  $("#heroModelState").textContent = mode === "configured" ? "BirdNET live" : "Simulated";
+  $("#heroModelState").textContent = provenance.evidence_level === "real_inference" ? "Real inference" : mode === "configured" ? "BirdNET ready" : "Simulated";
   $("#heroReviewState").textContent = unreviewed;
+  $("#heroExportState").textContent = "CSV + GeoJSON";
 }
 
 function renderReadiness() {
   const readiness = state.readiness || {};
+  const provenance = state.dashboard?.provenance || {};
   const counts = readiness.counts || {};
   const reviewCounts = readiness.review_counts || {};
   const levelLabels = {
@@ -244,6 +247,9 @@ function renderReadiness() {
   $("#readinessScore").textContent = readiness.readiness_score == null ? "--" : `${Math.round(readiness.readiness_score)}%`;
   $("#readinessLevel").textContent = levelLabels[readiness.evidence_level] || "Workflow";
   $("#readinessMessage").textContent = readiness.message || "Checking project evidence.";
+  $("#claimStatus").textContent = readiness.claim_status || provenance.claim_status || "Checking";
+  $("#evidenceDisclaimer").textContent = readiness.disclaimer || provenance.disclaimer || "Evidence provenance is loading.";
+  $("#nextProof").textContent = readiness.next_required_proof || provenance.next_required_proof || "Load project evidence.";
   $("#realOutputCount").textContent = counts.real_birdnet_outputs || 0;
   $("#simulatedOutputCount").textContent = counts.simulated_outputs || 0;
   $("#confirmedEvidenceCount").textContent = reviewCounts.confirmed || 0;
@@ -264,6 +270,7 @@ function renderReadiness() {
 
 function renderSummary() {
   const summary = state.summary || {};
+  const provenance = state.dashboard?.provenance || {};
   $("#activityScore").textContent = Math.round(summary.biodiversity_activity_score || 0);
   $("#speciesRichness").textContent = summary.species_richness ?? 0;
   $("#noiseScore").textContent = Math.round(summary.noise_score || 0);
@@ -278,6 +285,7 @@ function renderSummary() {
   $("#queuedCount").textContent = `${queuedFromDashboard} queued`;
   $("#completedJobCount").textContent = jobCounts.completed || state.jobs.filter((job) => job.status === "completed").length;
   $("#failedJobCount").textContent = jobCounts.failed || state.jobs.filter((job) => job.status === "failed").length;
+  $("#metricStatus").textContent = provenance.can_make_ecological_claims ? "Needs review" : "Prototype only";
 }
 
 function renderJobs() {

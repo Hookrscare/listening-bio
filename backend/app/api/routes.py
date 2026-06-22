@@ -32,7 +32,7 @@ from backend.app.schemas.api import (
 from backend.app.services.audio_storage import save_uploaded_wav
 from backend.app.services.birdnet_processing import birdnet_status
 from backend.app.services.mock_processing import ensure_processing_job
-from backend.app.services.summaries import get_biodiversity_metrics, get_project_summary
+from backend.app.services.summaries import get_biodiversity_metrics, get_evidence_provenance, get_project_summary
 from backend.app.workers.processing_worker import run_job_once
 
 router = APIRouter()
@@ -58,11 +58,9 @@ def _project_readiness_data(project_id: str, db: Session) -> dict[str, object]:
         ).all()
     }
 
-    modes = [str(row.payload.get("mode", "unknown")) for row in raw_rows]
-    real_outputs = sum(1 for mode in modes if mode == "configured")
-    no_detection_outputs = sum(1 for mode in modes if mode == "configured_no_detections")
-    simulated_outputs = sum(1 for mode in modes if "simulated" in mode)
-    simulation_only = bool(raw_rows) and real_outputs == 0 and simulated_outputs > 0
+    provenance = get_evidence_provenance(db, project_id)
+    if provenance is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
     review_counts = {
         status: sum(1 for detection in detection_rows if detection.review_status == status)
         for status in ("confirmed", "unreviewed", "rejected")
@@ -90,8 +88,8 @@ def _project_readiness_data(project_id: str, db: Session) -> dict[str, object]:
         },
         {
             "label": "Real BirdNET inference",
-            "status": "complete" if real_outputs else "partial" if no_detection_outputs else "incomplete",
-            "detail": f"{real_outputs} configured output(s), {simulated_outputs} simulated output(s)",
+            "status": "complete" if provenance.real_birdnet_outputs else "partial" if provenance.configured_no_detection_outputs else "incomplete",
+            "detail": f"{provenance.real_birdnet_outputs} configured output(s), {provenance.simulated_outputs} simulated output(s)",
         },
         {
             "label": "Human review evidence",
@@ -109,27 +107,30 @@ def _project_readiness_data(project_id: str, db: Session) -> dict[str, object]:
         sum(score_weights[check["status"]] for check in readiness_checks) / len(readiness_checks) * 100,
         1,
     )
-    evidence_level = "simulation" if simulation_only else "real_inference" if real_outputs else "workflow"
     blockers = [check["label"] for check in readiness_checks if check["status"] != "complete"]
 
     return {
         "project_id": project.id,
         "project_name": project.name,
-        "evidence_level": evidence_level,
+        "evidence_level": provenance.evidence_level,
         "readiness_score": readiness_score,
-        "simulation_only": simulation_only,
+        "simulation_only": provenance.simulation_only,
+        "can_make_ecological_claims": provenance.can_make_ecological_claims,
+        "claim_status": provenance.claim_status,
+        "disclaimer": provenance.disclaimer,
+        "next_required_proof": provenance.next_required_proof,
         "counts": {
             "sites": site_count,
             "audio_files": len(audio_rows),
             "detections": len(detection_rows),
             "species_candidates": len(species_labels),
             "raw_model_outputs": len(raw_rows),
-            "real_birdnet_outputs": real_outputs,
-            "configured_no_detection_outputs": no_detection_outputs,
-            "simulated_outputs": simulated_outputs,
-            "local_audio_files": local_audio,
-            "simulated_audio_files": simulated_audio,
-            "external_audio_records": external_audio,
+            "real_birdnet_outputs": provenance.real_birdnet_outputs,
+            "configured_no_detection_outputs": provenance.configured_no_detection_outputs,
+            "simulated_outputs": provenance.simulated_outputs,
+            "local_audio_files": provenance.local_audio_files,
+            "simulated_audio_files": provenance.simulated_audio_files,
+            "external_audio_records": provenance.external_audio_records,
         },
         "review_counts": review_counts,
         "job_counts": job_counts,
@@ -137,9 +138,9 @@ def _project_readiness_data(project_id: str, db: Session) -> dict[str, object]:
         "blockers": blockers,
         "message": (
             "Simulation rehearsal only; replace with approved field WAV recordings before making ecological claims."
-            if simulation_only
+            if provenance.simulation_only
             else "Real inference evidence is present; continue expanding field recordings and expert review."
-            if real_outputs
+            if provenance.real_birdnet_outputs
             else "Workflow is ready; configure BirdNET and upload real WAV recordings for ecological evidence."
         ),
     }
@@ -331,6 +332,7 @@ def project_dashboard(project_id: str, db: Session = Depends(get_db)) -> Project
         raise HTTPException(status_code=404, detail="Project not found.")
     summary = get_project_summary(db, project_id)
     sites = list(db.scalars(select(Site).where(Site.project_id == project_id).order_by(Site.name)))
+    provenance = get_evidence_provenance(db, project_id)
     recent_audio_files = list(
         db.scalars(
             select(AudioFile)
@@ -370,6 +372,7 @@ def project_dashboard(project_id: str, db: Session = Depends(get_db)) -> Project
         project=project,
         summary=summary,
         metrics=get_biodiversity_metrics(db, project_id),
+        provenance=provenance,
         sites=sites,
         recent_audio_files=recent_audio_files,
         recent_detections=recent_detections,
@@ -663,6 +666,9 @@ def _geojson_response(filename: str, features: list[dict[str, object]]) -> Respo
 
 @router.get("/exports/detections.csv")
 def export_detections_csv(project_id: str, db: Session = Depends(get_db)) -> Response:
+    provenance = get_evidence_provenance(db, project_id)
+    if provenance is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
     rows = db.execute(
         select(Project, Site, AudioFile, Detection)
         .join(Site, Site.project_id == Project.id)
@@ -688,6 +694,8 @@ def export_detections_csv(project_id: str, db: Session = Depends(get_db)) -> Res
                 "start_seconds": detection.start_seconds,
                 "end_seconds": detection.end_seconds,
                 "review_status": detection.review_status,
+                "evidence_level": provenance.evidence_level,
+                "claim_status": provenance.claim_status,
                 "created_at": detection.created_at.isoformat(),
             }
             for project, site, audio_file, detection in rows
@@ -706,6 +714,8 @@ def export_detections_csv(project_id: str, db: Session = Depends(get_db)) -> Res
             "start_seconds",
             "end_seconds",
             "review_status",
+            "evidence_level",
+            "claim_status",
             "created_at",
         ],
     )
@@ -713,6 +723,9 @@ def export_detections_csv(project_id: str, db: Session = Depends(get_db)) -> Res
 
 @router.get("/exports/sites.csv")
 def export_sites_csv(project_id: str, db: Session = Depends(get_db)) -> Response:
+    provenance = get_evidence_provenance(db, project_id)
+    if provenance is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
     sites = list(db.scalars(select(Site).where(Site.project_id == project_id).order_by(Site.name)))
     return _csv_response(
         "sites.csv",
@@ -724,16 +737,21 @@ def export_sites_csv(project_id: str, db: Session = Depends(get_db)) -> Response
                 "habitat_type": site.habitat_type or "",
                 "latitude": site.latitude or "",
                 "longitude": site.longitude or "",
+                "evidence_level": provenance.evidence_level,
+                "claim_status": provenance.claim_status,
                 "created_at": site.created_at.isoformat(),
             }
             for site in sites
         ],
-        ["site_id", "project_id", "name", "habitat_type", "latitude", "longitude", "created_at"],
+        ["site_id", "project_id", "name", "habitat_type", "latitude", "longitude", "evidence_level", "claim_status", "created_at"],
     )
 
 
 @router.get("/exports/audio-files.csv")
 def export_audio_files_csv(project_id: str, db: Session = Depends(get_db)) -> Response:
+    provenance = get_evidence_provenance(db, project_id)
+    if provenance is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
     audio_files = list(
         db.scalars(select(AudioFile).join(Site).where(Site.project_id == project_id).order_by(AudioFile.created_at.desc()))
     )
@@ -747,16 +765,21 @@ def export_audio_files_csv(project_id: str, db: Session = Depends(get_db)) -> Re
                 "storage_uri": audio_file.storage_uri,
                 "duration_seconds": audio_file.duration_seconds or "",
                 "status": audio_file.status,
+                "evidence_level": provenance.evidence_level,
+                "claim_status": provenance.claim_status,
                 "created_at": audio_file.created_at.isoformat(),
             }
             for audio_file in audio_files
         ],
-        ["audio_file_id", "site_id", "file_name", "storage_uri", "duration_seconds", "status", "created_at"],
+        ["audio_file_id", "site_id", "file_name", "storage_uri", "duration_seconds", "status", "evidence_level", "claim_status", "created_at"],
     )
 
 
 @router.get("/exports/sites.geojson")
 def export_sites_geojson(project_id: str, db: Session = Depends(get_db)) -> Response:
+    provenance = get_evidence_provenance(db, project_id)
+    if provenance is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
     sites = list(db.scalars(select(Site).where(Site.project_id == project_id).order_by(Site.name)))
     features = [
         {
@@ -767,6 +790,8 @@ def export_sites_geojson(project_id: str, db: Session = Depends(get_db)) -> Resp
                 "project_id": site.project_id,
                 "name": site.name,
                 "habitat_type": site.habitat_type,
+                "evidence_level": provenance.evidence_level,
+                "claim_status": provenance.claim_status,
             },
         }
         for site in sites
@@ -777,6 +802,9 @@ def export_sites_geojson(project_id: str, db: Session = Depends(get_db)) -> Resp
 
 @router.get("/exports/detections.geojson")
 def export_detections_geojson(project_id: str, db: Session = Depends(get_db)) -> Response:
+    provenance = get_evidence_provenance(db, project_id)
+    if provenance is None:
+        raise HTTPException(status_code=404, detail="Project not found.")
     rows = db.execute(
         select(Project, Site, AudioFile, Detection)
         .join(Site, Site.project_id == Project.id)
@@ -805,6 +833,8 @@ def export_detections_geojson(project_id: str, db: Session = Depends(get_db)) ->
                 "start_seconds": detection.start_seconds,
                 "end_seconds": detection.end_seconds,
                 "review_status": detection.review_status,
+                "evidence_level": provenance.evidence_level,
+                "claim_status": provenance.claim_status,
             },
         }
         for project, site, audio_file, detection in rows

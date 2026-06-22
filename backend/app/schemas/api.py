@@ -176,10 +176,28 @@ class BiodiversityMetrics(BaseModel):
     note: str = "Prototype indicators only; not scientifically validated scores."
 
 
+class EvidenceProvenance(BaseModel):
+    project_id: str
+    evidence_level: str
+    simulation_only: bool
+    can_make_ecological_claims: bool
+    real_birdnet_outputs: int
+    simulated_outputs: int
+    configured_no_detection_outputs: int
+    local_audio_files: int
+    simulated_audio_files: int
+    external_audio_records: int
+    confirmed_detections: int
+    claim_status: str
+    disclaimer: str
+    next_required_proof: str
+
+
 class ProjectDashboard(BaseModel):
     project: ProjectRead
     summary: ProjectSummary
     metrics: BiodiversityMetrics
+    provenance: EvidenceProvenance
     sites: list[SiteRead]
     recent_audio_files: list[AudioFileRead]
     recent_detections: list[DetectionRead]
