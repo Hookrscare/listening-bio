@@ -6,7 +6,7 @@ Do not lead with “AI bird detector.”
 
 Lead with:
 
-“BioSignal helps cities, universities, schools, and conservation groups turn low-cost environmental audio into auditable biodiversity evidence.”
+“Listening.bio helps cities, universities, schools, and conservation groups turn low-cost environmental audio into auditable biodiversity evidence.”
 
 That makes the project infrastructure for conservation decisions, not just a model demo.
 
@@ -22,7 +22,7 @@ That makes the project infrastructure for conservation decisions, not just a mod
 
 Ask for a pilot, not a vague partnership:
 
-“We are looking for one partner to validate a 30-day acoustic biodiversity pilot across 3 to 5 sites. BioSignal will process recordings, preserve provenance, support human review, and export evidence-ready CSV/report summaries.”
+“We are looking for one partner to validate a 30-day acoustic biodiversity pilot across 3 to 5 sites. Listening.bio will process recordings, preserve provenance, support human review, and export evidence-ready CSV/report summaries.”
 
 ## 30-Day Pilot Shape
 

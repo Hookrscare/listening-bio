@@ -3,51 +3,65 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BioSignal Command</title>
-    <link rel="icon" href="data:," />
+    <title>Listening.bio | Biodiversity, heard</title>
+    <meta name="description" content="Listening.bio turns environmental sound into reviewable biodiversity evidence." />
+    <meta name="theme-color" content="#030706" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23030706'/%3E%3Cpath d='M13 34h7l4-13 7 27 7-34 6 20h7' fill='none' stroke='%23b7ff65' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=listening-bio-final" />
   </head>
-  <body>
+  <body class="listening-bio">
     <div class="app-shell">
       <aside class="sidebar">
-        <div class="brand">
-          <div class="brand-mark" aria-hidden="true">BS</div>
-          <div>
-            <strong>BioSignal</strong>
-            <span>Biodiversity intelligence</span>
+        <div class="brand" aria-label="Listening.bio">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="brand-name">
+            <strong>listening<span>.bio</span></strong>
+            <small>Biodiversity, heard.</small>
           </div>
         </div>
         <nav class="nav-list" aria-label="Primary">
-          <a class="active" href="#overview">Overview</a>
-          <a href="#map">Map</a>
-          <a href="#survey">Survey Intake</a>
-          <a href="#detections">Detections</a>
-          <a href="#reports">Reports</a>
-          <a href="./partners.html">Partner Pilot</a>
+          <a class="active" href="#overview"><i data-lucide="layout-dashboard"></i><span>Overview</span></a>
+          <a href="#map"><i data-lucide="map"></i><span>Map</span></a>
+          <a href="#survey"><i data-lucide="upload"></i><span>Survey intake</span></a>
+          <a href="#detections"><i data-lucide="scan-search"></i><span>Detections</span></a>
+          <a href="#reports"><i data-lucide="file-chart-column"></i><span>Reports</span></a>
+          <a href="./partners.html"><i data-lucide="handshake"></i><span>Partner pilot</span></a>
         </nav>
         <div class="system-chip" id="systemStatus">Checking API</div>
       </aside>
 
       <main class="main">
+        <div class="ambient-grid" aria-hidden="true"></div>
         <header class="topbar">
           <div>
-            <div class="topline">
-              <p class="eyebrow">Pilot Acoustic Biodiversity Survey</p>
-              <span class="release-chip">Studio UI v2</span>
-            </div>
-            <h1>BioSignal field console</h1>
+            <p class="eyebrow">Listening field / NYC 01</p>
+            <h1>Nature leaves a signal.</h1>
+            <p class="topbar-context">Capture it. Verify it. Turn environmental sound into evidence for the places that need protection.</p>
           </div>
           <div class="actions">
-            <button class="ghost" id="refreshButton" type="button">Refresh</button>
-            <button class="primary" id="runJobsButton" type="button">Run analysis jobs</button>
+            <button class="icon-button" id="refreshButton" type="button" title="Refresh data" aria-label="Refresh data"><i data-lucide="refresh-cw"></i></button>
+            <button class="primary" id="runJobsButton" type="button"><i data-lucide="play"></i><span>Run queued jobs</span></button>
           </div>
         </header>
+
+        <section class="evidence-gate" id="evidenceGate" data-level="workflow" aria-live="polite">
+          <div class="evidence-gate-icon" aria-hidden="true"><i data-lucide="shield-check"></i></div>
+          <div class="evidence-gate-copy">
+            <span id="evidenceGateKicker">Evidence mode</span>
+            <strong id="evidenceGateTitle">Verifying project provenance</strong>
+            <p id="evidenceGateDetail">Listening.bio is checking whether this project contains simulated or real model output.</p>
+          </div>
+          <div class="evidence-gate-claim">
+            <span>Ecological claims</span>
+            <strong id="claimEligibility">Not yet eligible</strong>
+          </div>
+        </section>
 
         <section class="project-command">
           <div class="project-picker">
@@ -65,17 +79,20 @@
               Description
               <input name="description" value="Acoustic biodiversity monitoring for a new habitat site." />
             </label>
-            <button class="ghost" type="submit">Create project</button>
+            <button class="ghost" type="submit"><i data-lucide="plus"></i><span>Create project</span></button>
           </form>
         </section>
 
         <section class="hero-grid" id="overview">
           <div class="acoustic-visual" aria-label="Acoustic activity visualization">
             <img src="./assets/acoustic-landscape.svg" alt="Layered acoustic landscape with habitat, waveform, and detection markers" />
+            <canvas id="biosphereCanvas" aria-hidden="true"></canvas>
             <canvas id="spectrogramCanvas" width="980" height="280"></canvas>
+            <div class="scene-loader" id="sceneLoader" role="status"><span></span><strong>Calibrating acoustic field</strong></div>
             <div class="hero-copy">
-              <span>Active deployment</span>
+              <span>40.7829 N / 73.9654 W / LIVE ACOUSTIC TERRITORY</span>
               <strong id="heroProjectName">Loading project</strong>
+              <small>Every habitat has a voice. Move through the field to reveal the signals inside it.</small>
             </div>
             <div class="hero-stat-strip">
               <div>
@@ -98,7 +115,7 @@
           </div>
           <div class="metric-panel">
             <div class="metric-large">
-              <span>Prototype indicator</span>
+              <span id="metricEvidenceLabel">Prototype indicator</span>
               <strong id="activityScore">--</strong>
               <em>Biodiversity activity score</em>
             </div>
@@ -281,7 +298,7 @@
           </div>
         </section>
 
-        <section class="workflow-grid">
+        <section class="workflow-grid" id="survey">
           <form class="panel intake-panel" id="audioForm">
             <div class="panel-header">
               <div>
@@ -414,6 +431,8 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="./app.js"></script>
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script src="./app.js?v=listening-bio-final"></script>
+    <script type="module" src="./scene.js?v=listening-bio-final"></script>
   </body>
 </html>

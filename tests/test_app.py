@@ -51,7 +51,13 @@ def test_frontend_is_served_by_backend(client):
     response = client.get("/app/")
 
     assert response.status_code == 200
-    assert "BioSignal Command" in response.text
+    assert "Listening.bio | Biodiversity, heard" in response.text
+    assert 'id="evidenceGate"' in response.text
+    assert 'id="claimEligibility"' in response.text
+    assert 'id="biosphereCanvas"' in response.text
+    assert 'type="module" src="./scene.js?v=listening-bio-final"' in response.text
+    assert "Demonstration data, not field evidence" in client.get("/app/app.js").text
+    assert "THREE.ShaderMaterial" in client.get("/app/scene.js").text
 
 
 def test_favicon_does_not_404(client):

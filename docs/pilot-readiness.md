@@ -1,6 +1,6 @@
 # Pilot Readiness Layer
 
-BioSignal now exposes a readiness layer for each project:
+Listening.bio now exposes a readiness layer for each project:
 
 `GET /projects/{project_id}/readiness`
 

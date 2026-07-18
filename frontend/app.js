@@ -94,6 +94,7 @@ function render() {
   renderReports();
   renderMap();
   drawSpectrogram();
+  if (window.lucide) window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
 }
 
 function renderProjects() {
@@ -244,8 +245,34 @@ function renderReadiness() {
     real_inference: "Real inference",
     workflow: "Workflow",
   };
+  const evidenceLevel = readiness.evidence_level || provenance.evidence_level || "workflow";
+  const gate = $("#evidenceGate");
+  gate.dataset.level = evidenceLevel;
+  const gateContent = {
+    simulation: {
+      kicker: "Simulation rehearsal",
+      title: "Demonstration data, not field evidence",
+      detail: "These results exercise the complete workflow but must not be presented as Central Park observations or ecological findings.",
+    },
+    real_inference: {
+      kicker: "Real BirdNET inference",
+      title: provenance.can_make_ecological_claims ? "Reviewed evidence is present" : "Model output requires human review",
+      detail: provenance.disclaimer || "Candidate species detections came from configured BirdNET inference and remain subject to review.",
+    },
+    workflow: {
+      kicker: "Workflow verification",
+      title: "Software flow ready for real recordings",
+      detail: "No claimable ecological evidence is present yet. Upload a field WAV and run configured BirdNET inference.",
+    },
+  }[evidenceLevel] || {};
+  $("#evidenceGateKicker").textContent = gateContent.kicker || "Evidence mode";
+  $("#evidenceGateTitle").textContent = gateContent.title || "Provenance unavailable";
+  $("#evidenceGateDetail").textContent = gateContent.detail || "Check the evidence record before sharing results.";
+  $("#claimEligibility").textContent = provenance.can_make_ecological_claims ? "Eligible with methods" : "Not yet eligible";
+  $("#metricEvidenceLabel").textContent =
+    evidenceLevel === "simulation" ? "Simulated rehearsal indicator" : evidenceLevel === "real_inference" ? "Candidate evidence indicator" : "Prototype indicator";
   $("#readinessScore").textContent = readiness.readiness_score == null ? "--" : `${Math.round(readiness.readiness_score)}%`;
-  $("#readinessLevel").textContent = levelLabels[readiness.evidence_level] || "Workflow";
+  $("#readinessLevel").textContent = levelLabels[evidenceLevel] || "Workflow";
   $("#readinessMessage").textContent = readiness.message || "Checking project evidence.";
   $("#claimStatus").textContent = readiness.claim_status || provenance.claim_status || "Checking";
   $("#evidenceDisclaimer").textContent = readiness.disclaimer || provenance.disclaimer || "Evidence provenance is loading.";
@@ -532,6 +559,13 @@ function bindEvents() {
 }
 
 bindEvents();
+document.querySelectorAll('.nav-list a[href^="#"]').forEach((link) => {
+  link.addEventListener("click", () => {
+    document.querySelectorAll(".nav-list a").forEach((item) => item.classList.remove("active"));
+    link.classList.add("active");
+  });
+});
+if (window.lucide) window.lucide.createIcons({ attrs: { "stroke-width": 1.8 } });
 loadData().catch((error) => {
   $("#systemStatus").textContent = "API unavailable";
   $("#formStatus").textContent = error.message;

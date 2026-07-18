@@ -23,8 +23,13 @@
 - Partner evidence package JSON and Markdown export for pilot/grant conversations
 - GeoJSON exports for sites and detections for GIS/partner workflows
 - Dashboard/export evidence provenance contract that labels workflow, simulation, and real-inference states
+- Persistent evidence gate in the command center that blocks ambiguous ecological claims and labels headline metrics by provenance
+- Original real-time Three.js acoustic habitat scene with custom GLSL displacement, pointer response, scroll camera movement, responsive resolution, reduced-motion support, and static fallback
 - Backend tests for health, metadata import, seed idempotency, mock processing, summaries, and Alembic configuration
 - Real public recording demo script using Xeno-canto `XC364638`
+- Verified configured-BirdNET run on `XC364638`, with seven stored candidates and four American Robin windows
+- Partner outreach drafts for Central Park Conservancy, Columbia E3B, Macaulay/CUNY BioBlitz, and NYU urban ecology
+- Small-grant application draft, larger-grant concept, budget, eligibility map, and funding readiness checklist
 - Central Park pilot simulation dataset for partner-demo rehearsal
 
 ## Deferred

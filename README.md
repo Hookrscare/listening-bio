@@ -63,6 +63,8 @@ Use the Survey Intake file picker to upload a local `.wav`; this queues a `birdn
 
 The dashboard and exports include evidence provenance fields that separate `workflow`, `simulation`, and `real_inference` states. Use those labels when speaking with partners: simulated pilot data is useful for rehearsal, but only configured BirdNET output from real WAV recordings should be treated as ecological evidence.
 
+The command center keeps this boundary visible in a persistent evidence gate. Simulation projects display an amber rehearsal warning, real inference projects display their review requirement, and ecological claim eligibility remains disabled until the evidence contract records sufficient reviewed real output.
+
 The first partner-facing pilot page is available at `http://127.0.0.1:8000/app/partners.html`.
 
 ## BirdNET Adapter
@@ -78,7 +80,7 @@ make birdnet-verify
 
 Until that variable is configured, `birdnet_analysis` jobs run in `simulated` mode and write the mode into `raw_model_outputs.payload`. Check `GET /integrations/birdnet/status` before claiming real model output. See [docs/birdnet-integration.md](docs/birdnet-integration.md).
 
-To run a real public wildlife recording through the full BioSignal pipeline:
+To run a real public wildlife recording through the full Listening.bio pipeline:
 
 ```bash
 export BIRDNET_COMMAND="$PWD/.venv/bin/python -m birdnet_analyzer.analyze {input} -o {output_dir} --rtype csv --min_conf {min_conf}"
@@ -97,6 +99,15 @@ make serve
 ```
 
 Open `http://127.0.0.1:8000/app/` and select `Central Park Acoustic Biodiversity Pilot Simulation`. This creates 5 simulated sites, 100 audio records, BirdNET-like candidate detections, review states, a report shell, and partner/outreach artifacts. See [docs/central-park-pilot-simulation.md](docs/central-park-pilot-simulation.md).
+
+## Partnership and Funding Package
+
+- [Public-data validation registry](docs/public-data-validation.md)
+- [Partner outreach email drafts](docs/partner-outreach-drafts.md)
+- [Grant strategy and application draft](docs/grant-strategy-and-draft.md)
+- [Send-ready outreach and current micro-grant application](outreach/)
+
+The verified real-audio demo processed Xeno-canto `XC364638` in configured BirdNET mode and wrote its auditable result to `work/demo/XC364638-listening-bio-result.json`. The outreach drafts have not been sent, and grant eligibility still depends on an appropriate university, nonprofit, public-agency, land-trust, or incorporated small-business applicant.
 
 ## Useful Endpoints
 

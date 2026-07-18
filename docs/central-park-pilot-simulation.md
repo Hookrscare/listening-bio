@@ -4,7 +4,7 @@
 
 This dataset is a rehearsal asset while partner conversations are underway. It is not real field evidence.
 
-The simulation lets BioSignal demonstrate the workflow a Central Park partner would see:
+The simulation lets Listening.bio demonstrate the workflow a Central Park partner would see:
 
 `site planning -> audio survey -> BirdNET-like candidate detections -> review -> dashboard -> CSV/report shell`
 

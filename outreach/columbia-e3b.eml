@@ -1,0 +1,21 @@
+To: e3badmin@columbia.edu
+Subject: Research partnership request: auditable urban bioacoustic monitoring pilot
+X-Delivery-Route: https://e3b.columbia.edu/contact-us
+
+Hello E3B team,
+
+My name is Rodrigo Castro, and I am seeking an academic collaborator for Listening.bio, a working environmental-audio platform that ingests WAV recordings, runs BirdNET, preserves raw model outputs, supports human review, and exports georeferenced biodiversity evidence.
+
+The technical workflow has been verified with real public audio. The next step must be scientifically designed: a small New York City pilot with a repeatable sampling protocol, reference annotations, error analysis, and conservative interpretation.
+
+I propose a study across three to five urban sites using 50 to 100 recordings. Listening.bio would provide the software, processing workflow, provenance controls, maps, and exports. I am looking for a faculty member, graduate researcher, or lab that could help shape the protocol, review a representative detection sample, and evaluate whether the resulting evidence is useful for urban ecology or conservation research.
+
+The project is designed to treat AI predictions as reviewable candidates, not ecological truth. A successful pilot would produce a reusable protocol, an annotated validation sample, a transparent error report, and a foundation for a partner-led grant application.
+
+Could you please route this inquiry to someone working in urban ecology, ornithology, conservation biology, quantitative ecology, or biodiversity monitoring? I would be glad to share a short demo and draft study protocol.
+
+Best regards,
+
+Rodrigo Castro
+Listening.bio
+GitHub: https://github.com/Hookrscare/ai-biodiversity-backend

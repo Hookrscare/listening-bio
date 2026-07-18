@@ -2,11 +2,11 @@
 
 ## Scientific And Product Critique
 
-BioSignal has the right workflow spine for an environmental data system:
+Listening.bio has the right workflow spine for an environmental data system:
 
 `Project -> Site -> Audio -> Processing Job -> BirdNET Output -> Normalized Detection -> Review -> Metrics -> Export`
 
-That is a strong MVP foundation. The major risk is no longer whether the software can be built; it is whether BioSignal can produce defensible ecological evidence from real field audio.
+That is a strong MVP foundation. The major risk is no longer whether the software can be built; it is whether Listening.bio can produce defensible ecological evidence from real field audio.
 
 The biggest scientific risk is false confidence. BirdNET can produce plausible detections that are wrong, especially with noisy urban audio, short clips, weak microphones, overlapping species, non-bird sounds, and incorrect date/location context. Metrics must stay labeled as prototype indicators until validated against field review or expert annotation.
 

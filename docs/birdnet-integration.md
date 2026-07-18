@@ -1,6 +1,6 @@
 # BirdNET Integration Notes
 
-BioSignal now has a `birdnet_analysis` job type and adapter boundary. The current local path is intentionally honest:
+Listening.bio now has a `birdnet_analysis` job type and adapter boundary. The current local path is intentionally honest:
 
 - uploaded WAV files are stored locally under `work/uploads`
 - a `ProcessingJob` is queued with `job_type = birdnet_analysis`
@@ -73,7 +73,7 @@ make birdnet-sample
 make birdnet-verify
 ```
 
-`make birdnet-verify` runs through the BioSignal upload and processing pipeline. Synthetic audio may produce zero detections; use a real field recording to validate ecological output.
+`make birdnet-verify` runs through the Listening.bio upload and processing pipeline. Synthetic audio may produce zero detections; use a real field recording to validate ecological output.
 
 ## Source Notes
 

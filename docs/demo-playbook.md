@@ -1,10 +1,10 @@
-# BioSignal Demo Playbook
+# Listening.bio Demo Playbook
 
 ## Demo Goal
 
 Prove the core claim:
 
-BioSignal can turn a real wildlife audio recording into auditable candidate biodiversity detections using BirdNET, while preserving source and review context.
+Listening.bio can turn a real wildlife audio recording into auditable candidate biodiversity detections using BirdNET, while preserving source and review context.
 
 ## Real Recording Used
 
@@ -35,13 +35,13 @@ Open:
 
 The script writes a local result artifact to:
 
-`work/demo/XC364638-biosignal-result.json`
+`work/demo/XC364638-listening-bio-result.json`
 
 ## What To Say In The Demo
 
 Use this language:
 
-“This is a real public wildlife recording from Xeno-canto, not synthetic audio. BioSignal converts it to WAV, uploads it through the same API as field recordings, runs the configured BirdNET command, stores raw model output, normalizes detections, and exposes them for human review and CSV export.”
+“This is a real public wildlife recording from Xeno-canto, not synthetic audio. Listening.bio converts it to WAV, uploads it through the same API as field recordings, runs the configured BirdNET command, stores raw model output, normalizes detections, and exposes them for human review and CSV export.”
 
 Avoid saying:
 
@@ -63,4 +63,4 @@ This is a strong proof of the pipeline. It is not yet a validated ecological res
 
 ## Next Proof Step
 
-Record 50 to 100 WAV files across 3 to 5 local sites using a repeatable protocol, run them through BioSignal, review a subset, export CSV, and publish a short pilot report.
+Record 50 to 100 WAV files across 3 to 5 local sites using a repeatable protocol, run them through Listening.bio, review a subset, export CSV, and publish a short pilot report.
