@@ -16,9 +16,9 @@ venv/
 # Local app/runtime output
 work/
 outputs/
+listening-bio-dist.zip
 
 # OS/editor
 .DS_Store
 .idea/
 .vscode/
-
