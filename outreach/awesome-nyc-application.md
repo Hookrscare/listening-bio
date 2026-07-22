@@ -2,7 +2,7 @@
 
 Application: https://www.awesomefoundation.org/en/submissions/new?chapter=nyc
 
-Status: Ready for applicant contact details and submission. Not submitted.
+Status: Submitted successfully on July 22, 2026. The Awesome Foundation confirmation email states that the application will be considered at the New York City chapter's next deliberation meeting.
 
 ## Project title
 
@@ -32,9 +32,7 @@ The pilot gives New Yorkers a concrete way to discover, question, and document t
 
 ## Suggested project website
 
-Use the public partner page once deployed. Until then:
-
-https://github.com/Hookrscare/ai-biodiversity-backend
+https://listening.bio
 
 ## Suggested uploads
 

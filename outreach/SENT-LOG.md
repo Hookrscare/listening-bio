@@ -15,3 +15,9 @@ All dates and times use America/New_York unless otherwise stated.
 ## Automation
 
 The active Codex automation is `listening-bio-outreach-follow-up`. It checks daily for genuine human responses, ignores bounces and automated notices, sends one brief written acknowledgment per genuine response, and controls first and final follow-ups according to `SEND-CHECKLIST.md`.
+
+## Grant applications
+
+| Program | Request | Result |
+| --- | ---: | --- |
+| Awesome Foundation New York City | $1,000 | Submitted successfully July 22, 2026; confirmation email received and application queued for the chapter's next deliberation meeting |
