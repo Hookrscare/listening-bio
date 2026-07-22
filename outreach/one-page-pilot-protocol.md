@@ -45,9 +45,12 @@ Listening.bio preserves the source recording, time window, model identity and ve
 
 ## Proposed first step
 
-A 20-minute scoping call to identify the partner's monitoring question, required permissions, scientific-review capacity, and appropriate pilot dates.
+An asynchronous email review to identify the partner's monitoring question, required permissions, scientific-review capacity, and appropriate pilot dates. Listening.bio can provide a revised written protocol based on that feedback without requiring an introductory call.
 
-Rodrigo Castro  
-Founder, Listening.bio  
-rodrigo@listening.bio | 212-540-5659  
+Rodrigo Castro
+
+Founder, Listening.bio
+
+rodrigo@listening.bio
+
 https://listening.bio

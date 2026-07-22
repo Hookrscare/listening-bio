@@ -9,6 +9,7 @@
 ## Before sending
 
 - Send from `rodrigo@listening.bio`.
+- Keep communication asynchronous and in writing unless Rodrigo explicitly agrees to a call.
 - Confirm that `https://listening.bio` opens correctly.
 - Do not attach a deck to the first message.
 - Keep `one-page-pilot-protocol.md` ready and send it when requested.
@@ -27,7 +28,7 @@ Subject: Re: [original subject]
 
 Hello [Name],
 
-I am following up on the note below about a small, transparent acoustic biodiversity pilot. The proposed first step is only a 20-minute conversation to determine whether the question is relevant to your work and what a responsible pilot would require.
+I am following up on the note below about a small, transparent acoustic biodiversity pilot. The proposed first step is a short email exchange to determine whether the question is relevant to your work and what a responsible pilot would require.
 
 The live evidence demonstration is at https://listening.bio. I would be glad to send the one-page protocol if useful.
 
@@ -35,4 +36,4 @@ Best regards,
 
 Rodrigo Castro
 Founder, Listening.bio
-rodrigo@listening.bio | 212-540-5659
+rodrigo@listening.bio

@@ -8,7 +8,7 @@ Hello Central Park Conservancy team,
 
 My name is Rodrigo Castro, founder of Listening.bio, a working biodiversity-monitoring platform that turns environmental recordings into traceable BirdNET candidate detections, human-reviewed observations, maps, and exportable evidence.
 
-I am requesting a conversation about a small, permission-based Central Park pilot. The proposed scope is intentionally limited: three to five locations chosen with your team, 50 to 100 short recordings over 30 days, and a conservative findings package that clearly separates model candidates from reviewed evidence.
+I am requesting written guidance about a small, permission-based Central Park pilot. The proposed scope is intentionally limited: three to five locations chosen with your team, 50 to 100 short recordings over 30 days, and a conservative findings package that clearly separates model candidates from reviewed evidence.
 
 The software works end to end: audio upload, configured BirdNET inference, source and model provenance, detection review, mapping, and CSV/GeoJSON exports. A public-audio validation run correctly identified an American Robin while retaining lower-confidence candidates for review. That test validates the workflow, not ecological performance in Central Park.
 
@@ -16,11 +16,11 @@ Listening.bio would provide the technology workflow, processing, data organizati
 
 This would not be presented as a complete ecological survey. The objective is to test whether low-cost acoustic monitoring can responsibly complement existing work.
 
-Would a 20-minute introductory conversation be possible in the next two weeks? I can send a one-page sampling protocol in advance and demonstrate the evidence workflow at https://listening.bio.
+If this is potentially relevant, could you reply by email with the appropriate staff contact, required permission process, and any stewardship question that acoustic monitoring might usefully support? I can then send the one-page sampling protocol for written review. The evidence workflow is available at https://listening.bio.
 
 Thank you,
 
 Rodrigo Castro
 Founder, Listening.bio
-rodrigo@listening.bio | 212-540-5659
+rodrigo@listening.bio
 https://listening.bio
