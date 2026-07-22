@@ -270,6 +270,8 @@
 }
 .attribution a {
   color: var(--lime);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
 }
 
 /* ============ Contact / conversion ============ */

@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { track } from "../../lib/analytics";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "https://api.listening.bio";
+const API_BASE = import.meta.env.VITE_API_BASE?.trim();
 const CONTACT_EMAIL = "rodrigo@listening.bio";
 
 const ORG_TYPES = [
@@ -25,7 +25,7 @@ const ROLES = [
 type Status =
   | { kind: "idle" }
   | { kind: "submitting" }
-  | { kind: "success" }
+  | { kind: "success"; message: string }
   | { kind: "error"; message: string };
 
 interface Errors {
@@ -36,6 +36,26 @@ interface Errors {
 
 function isEmail(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
+export function buildPartnerEmail(payload: Record<string, string>) {
+  const subject = encodeURIComponent("Listening.bio pilot partnership");
+  const labels: Record<string, string> = {
+    name: "Name",
+    organization: "Organization",
+    email: "Email",
+    organization_type: "Organization type",
+    partnership_role: "Partnership role",
+    site_area: "Site or geographic area",
+    project_period: "Preferred project period",
+    monitoring_goal: "Monitoring goal",
+    equipment_staff: "Available equipment or staff",
+    context: "Additional context",
+  };
+  const body = Object.entries(labels)
+    .map(([key, label]) => `${label}: ${payload[key] || "—"}`)
+    .join("\n");
+  return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${encodeURIComponent(body)}`;
 }
 
 export function Contact() {
@@ -86,7 +106,7 @@ export function Contact() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
 
-    const payload = {
+    const payload: Record<string, string> = {
       name,
       organization: (data.get("organization") as string) ?? "",
       email,
@@ -100,6 +120,19 @@ export function Contact() {
       source: "listening.bio",
     };
 
+    if (!API_BASE) {
+      window.location.assign(buildPartnerEmail(payload));
+      setStatus({
+        kind: "success",
+        message: "Your email app is opening with the pilot details prepared.",
+      });
+      track("contact_form_submitted", {
+        role: selectedRole,
+        delivery: "email_draft",
+      });
+      return;
+    }
+
     setStatus({ kind: "submitting" });
     try {
       const res = await fetch(`${API_BASE}/contact-enquiries`, {
@@ -108,7 +141,10 @@ export function Contact() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(`Server responded ${res.status}`);
-      setStatus({ kind: "success" });
+      setStatus({
+        kind: "success",
+        message: "Thank you — we’ll be in touch about the pilot.",
+      });
       track("contact_form_submitted", { role: selectedRole });
       form.reset();
       setRole("");
@@ -281,7 +317,7 @@ export function Contact() {
           >
             {status.kind === "success" && (
               <span className="success">
-                Thank you — we’ll be in touch about the pilot.
+                {status.message}
               </span>
             )}
             {status.kind === "error" && (

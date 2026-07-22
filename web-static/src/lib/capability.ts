@@ -39,6 +39,9 @@ export function prefersReducedMotion(): boolean {
 
 export function detectTier(): QualityTier {
   if (typeof window === "undefined") return "unsupported";
+  // The 2D field preserves the visual language on phones without downloading
+  // or initializing the much heavier Three.js runtime.
+  if (window.innerWidth <= 800) return "unsupported";
   if (!hasWebGL2()) return "unsupported";
 
   const nav = navigator as NavigatorWithExtras;

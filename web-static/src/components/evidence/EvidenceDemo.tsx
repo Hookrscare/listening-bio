@@ -259,7 +259,7 @@ export function EvidenceDemo() {
               type="button"
               className="transport-btn"
               onClick={() => seek(currentTime - 5)}
-              aria-label="Back five seconds"
+              aria-label="−5s, back five seconds"
             >
               −5s
             </button>
@@ -267,7 +267,7 @@ export function EvidenceDemo() {
               type="button"
               className="transport-btn"
               onClick={() => seek(currentTime + 5)}
-              aria-label="Forward five seconds"
+              aria-label="+5s, forward five seconds"
             >
               +5s
             </button>

@@ -65,10 +65,11 @@
   gap: 14px;
 }
 .chapter-rail button {
+  min-height: 28px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0;
+  padding: 7px 0;
   border: 0;
   background: none;
   color: var(--muted);

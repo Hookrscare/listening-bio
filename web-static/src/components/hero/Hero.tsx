@@ -30,13 +30,15 @@ export function Hero() {
 
   return (
     <section className="hero" id="top">
-      {useWebGL ? (
-        <Suspense fallback={fallback}>
-          <HeroCanvas fallback={fallback} />
-        </Suspense>
-      ) : (
-        fallback
-      )}
+      <div className="hero-visual" aria-hidden="true">
+        {useWebGL ? (
+          <Suspense fallback={fallback}>
+            <HeroCanvas fallback={fallback} />
+          </Suspense>
+        ) : (
+          fallback
+        )}
+      </div>
 
       <div className="hero-grid" aria-hidden="true" />
 

@@ -1,0 +1,10 @@
+# Listening.bio
+
+Listening.bio is an acoustic biodiversity monitoring platform that turns environmental recordings into transparent, reviewable evidence. Automated detections are treated as evidence candidates and remain connected to source audio, model configuration, confidence, and human review.
+
+## Primary resources
+
+- [Website](https://listening.bio/)
+- [Evidence demonstration](https://listening.bio/#evidence)
+- [Pilot model](https://listening.bio/#pilot)
+- [Partnership enquiry](https://listening.bio/#contact)

@@ -43,7 +43,7 @@ const QUIET_KEY = "lb.quietMode";
 export function ExperienceProvider({ children }: { children: ReactNode }) {
   const [reducedMotion, setReducedMotion] = useState(prefersReducedMotion);
   const [quietMode, setQuietMode] = useState(false);
-  const [quality, setQuality] = useState<QualityTier>("balanced");
+  const [quality, setQuality] = useState<QualityTier>(detectTier);
   const [pageVisible, setPageVisible] = useState(true);
   const [windowFocused, setWindowFocused] = useState(true);
   const pointer = useRef<Pointer>({ x: 0.5, y: 0.5, vx: 0, vy: 0 });
