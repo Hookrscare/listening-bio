@@ -1,10 +1,12 @@
-To: kelly.odonnell@mhc.cuny.edu
-Cc: bioblitz@macaulay.cuny.edu
+To: lisa.brundage@mhc.cuny.edu
+Cc: kelly.odonnell@mhc.cuny.edu
 From: Rodrigo Castro <rodrigo@listening.bio>
 Reply-To: rodrigo@listening.bio
 Subject: A small acoustic-monitoring complement to Macaulay BioBlitz
 
-Hello Dr. O'Donnell,
+Hello Dr. Brundage,
+
+The Macaulay BioBlitz automatic reply directed inquiries to you.
 
 My name is Rodrigo Castro, founder of Listening.bio, a working platform for auditable acoustic biodiversity monitoring. It accepts environmental recordings, runs BirdNET candidate detection, preserves provenance, supports confirm/reject review, and exports CSV and GeoJSON data.
 
