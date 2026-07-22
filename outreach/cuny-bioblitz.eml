@@ -1,20 +1,26 @@
 To: kelly.odonnell@mhc.cuny.edu
-Subject: BioBlitz partnership request: acoustic biodiversity evidence and student review
+Cc: bioblitz@macaulay.cuny.edu
+From: Rodrigo Castro <rodrigo@listening.bio>
+Reply-To: rodrigo@listening.bio
+Subject: A small acoustic-monitoring complement to Macaulay BioBlitz
 
 Hello Dr. O'Donnell,
 
-My name is Rodrigo Castro, and I am developing Listening.bio, a working platform for auditable acoustic biodiversity monitoring. It accepts environmental WAV recordings, runs BirdNET candidate detection, preserves provenance, supports confirm/reject review, and exports CSV and GeoJSON data.
+My name is Rodrigo Castro, founder of Listening.bio, a working platform for auditable acoustic biodiversity monitoring. It accepts environmental recordings, runs BirdNET candidate detection, preserves provenance, supports confirm/reject review, and exports CSV and GeoJSON data.
 
-Macaulay's BioBlitz model appears especially compatible because Listening.bio is not intended to replace naturalists. It organizes machine-generated candidates so students and experts can inspect, correct, and learn from them.
+Macaulay's BioBlitz model is especially relevant because Listening.bio is not intended to replace naturalists. It organizes machine-generated candidates so students and experts can inspect, correct, and learn from model errors.
 
-I would like to explore a small collaboration that compares acoustic candidates with BioBlitz observations, creates a student review exercise, or tests whether environmental audio adds useful temporal coverage around a future event. A first pilot could use three to five sites and 50 to 100 recordings, with transparent reporting of correct detections, false candidates, and model limitations.
+I saw that the 2026 BioBlitz is planned for August 29-30 at Willowbrook Park. I do not want to add complexity to an event already in preparation. Instead, I would like to explore either a very small optional methods demonstration associated with the event, if useful and feasible, or a later collaboration that compares acoustic candidates with BioBlitz observations and creates a student review exercise.
 
-Listening.bio can provide the complete software workflow, processing, review interface, maps, and research-ready exports. I am seeking scientific and educational feedback, help shaping the validation method, and an appropriate BioBlitz or green-space context.
+A first study could use three to five approved sites and 50 to 100 recordings, with transparent reporting of correct detections, false candidates, and model limitations. The specific research and education questions would be shaped with your team before any recording begins.
 
-Would you be open to a 20-minute conversation about whether this could complement a future Macaulay BioBlitz? I can share a live demonstration and one-page protocol beforehand.
+Listening.bio can provide the software workflow, processing, review interface, maps, and research-ready exports at no software cost during the pilot. I am seeking scientific and educational feedback, help shaping the validation method, and an appropriate event or green-space context.
+
+Would you be open to a 20-minute conversation in the next two weeks? I can send a one-page protocol beforehand, and the live evidence demonstration is available at https://listening.bio.
 
 Best regards,
 
 Rodrigo Castro
-Listening.bio
-GitHub: https://github.com/Hookrscare/ai-biodiversity-backend
+Founder, Listening.bio
+rodrigo@listening.bio | 212-540-5659
+https://listening.bio

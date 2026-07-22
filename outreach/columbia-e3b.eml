@@ -1,21 +1,25 @@
-To: e3badmin@columbia.edu
-Subject: Research partnership request: auditable urban bioacoustic monitoring pilot
+To: drp2141@columbia.edu
+Cc: e3badmin@columbia.edu
+From: Rodrigo Castro <rodrigo@listening.bio>
+Reply-To: rodrigo@listening.bio
+Subject: Could we validate a small NYC urban-bird acoustic pilot?
 X-Delivery-Route: https://e3b.columbia.edu/contact-us
 
-Hello E3B team,
+Hello Dr. Partridge,
 
-My name is Rodrigo Castro, and I am seeking an academic collaborator for Listening.bio, a working environmental-audio platform that ingests WAV recordings, runs BirdNET, preserves raw model outputs, supports human review, and exports georeferenced biodiversity evidence.
+My name is Rodrigo Castro, founder of Listening.bio. Given your work in urban bird conservation and science-based biodiversity protection in New York City, I am writing to ask whether you would consider advising a narrowly scoped validation pilot.
 
-The technical workflow has been verified with real public audio. The next step must be scientifically designed: a small New York City pilot with a repeatable sampling protocol, reference annotations, error analysis, and conservative interpretation.
+Listening.bio ingests environmental recordings, runs BirdNET, preserves raw model outputs and processing context, supports human review, and exports georeferenced evidence. The workflow has been verified with public audio, but it has not yet been scientifically validated as a field-monitoring method. That is the next step.
 
-I propose a study across three to five urban sites using 50 to 100 recordings. Listening.bio would provide the software, processing workflow, provenance controls, maps, and exports. I am looking for a faculty member, graduate researcher, or lab that could help shape the protocol, review a representative detection sample, and evaluate whether the resulting evidence is useful for urban ecology or conservation research.
+I propose a 30-day study across three to five NYC sites using 50 to 100 recordings. Listening.bio would provide the software, processing, provenance controls, maps, and exports. I am seeking limited scientific guidance on the sampling design, a defensible annotation and error-analysis method, and review of a representative detection subset.
 
-The project is designed to treat AI predictions as reviewable candidates, not ecological truth. A successful pilot would produce a reusable protocol, an annotated validation sample, a transparent error report, and a foundation for a partner-led grant application.
+The system treats AI predictions as reviewable candidates, not ecological truth. A successful pilot would produce a reusable protocol, an annotated validation sample, a transparent error report, and preliminary evidence for a partner-led grant application. Listening.bio would cover the technology work for the initial pilot.
 
-Could you please route this inquiry to someone working in urban ecology, ornithology, conservation biology, quantitative ecology, or biodiversity monitoring? I would be glad to share a short demo and draft study protocol.
+Would you be open to a 20-minute conversation in the next two weeks? If this is outside your current scope, I would be grateful for a referral to a colleague or graduate researcher for whom the methods question is a better fit. The live evidence demonstration is at https://listening.bio.
 
 Best regards,
 
 Rodrigo Castro
-Listening.bio
-GitHub: https://github.com/Hookrscare/ai-biodiversity-backend
+Founder, Listening.bio
+rodrigo@listening.bio | 212-540-5659
+https://listening.bio

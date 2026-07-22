@@ -1,23 +1,26 @@
-To: Central Park Conservancy Research / Ecology Team
-Subject: Partnership request: 30-day acoustic biodiversity pilot in Central Park
+To: Central Park Conservancy Stewardship / Ecology Team (via contact form)
+From: Rodrigo Castro <rodrigo@listening.bio>
+Reply-To: rodrigo@listening.bio
+Subject: Request for a small, permission-based acoustic biodiversity pilot
 X-Delivery-Route: https://www.centralparknyc.org/contact-us
 
 Hello Central Park Conservancy team,
 
-My name is Rodrigo Castro, and I am developing Listening.bio, a working biodiversity-monitoring platform that turns environmental WAV recordings into traceable BirdNET candidate detections, human-reviewed observations, maps, and exportable evidence.
+My name is Rodrigo Castro, founder of Listening.bio, a working biodiversity-monitoring platform that turns environmental recordings into traceable BirdNET candidate detections, human-reviewed observations, maps, and exportable evidence.
 
-I am requesting a conversation about a small, permission-based Central Park pilot. The proposed scope is intentionally limited: three to five locations selected with your team, 50 to 100 short recordings over 30 days, and a conservative findings package that clearly separates model candidates from reviewed evidence.
+I am requesting a conversation about a small, permission-based Central Park pilot. The proposed scope is intentionally limited: three to five locations chosen with your team, 50 to 100 short recordings over 30 days, and a conservative findings package that clearly separates model candidates from reviewed evidence.
 
-The software is already functioning end to end. It supports real audio upload, configured BirdNET inference, source and model provenance, detection review, and CSV/GeoJSON exports. We have also completed a real public-audio validation run that correctly detected American Robin while preserving lower-confidence candidates for review.
+The software works end to end: audio upload, configured BirdNET inference, source and model provenance, detection review, mapping, and CSV/GeoJSON exports. A public-audio validation run correctly identified an American Robin while retaining lower-confidence candidates for review. That test validates the workflow, not ecological performance in Central Park.
 
-Listening.bio would provide the technology workflow, processing, data organization, and pilot report. I am seeking Conservancy guidance on whether this could support an existing stewardship, research, or environmental-education priority; which locations and permissions would be appropriate; and what evidence would be useful to your team.
+Listening.bio would provide the technology workflow, processing, data organization, and pilot report at no software cost during the pilot. I am seeking Conservancy guidance on whether this could support an existing stewardship, research, or environmental-education priority; which permissions and locations would be appropriate; and what evidence would be useful to your team.
 
 This would not be presented as a complete ecological survey. The objective is to test whether low-cost acoustic monitoring can responsibly complement existing work.
 
-Would a 20-minute introductory conversation be possible? I can provide a live demo and one-page sampling protocol in advance.
+Would a 20-minute introductory conversation be possible in the next two weeks? I can send a one-page sampling protocol in advance and demonstrate the evidence workflow at https://listening.bio.
 
 Thank you,
 
 Rodrigo Castro
-Listening.bio
-GitHub: https://github.com/Hookrscare/ai-biodiversity-backend
+Founder, Listening.bio
+rodrigo@listening.bio | 212-540-5659
+https://listening.bio
