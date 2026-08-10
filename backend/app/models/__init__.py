@@ -1,5 +1,6 @@
 from backend.app.models.entities import (
     AIModel,
+    APIKey,
     AudioFile,
     AuditLog,
     Base,
@@ -16,17 +17,20 @@ from backend.app.models.entities import (
     Project,
     RawModelOutput,
     Report,
+    ReviewEvent,
     ResearchItem,
     SchemaVersion,
     Site,
     SoundClass,
     SpeciesReference,
     User,
+    UsageEvent,
     WeeklyReview,
 )
 
 __all__ = [
     "AIModel",
+    "APIKey",
     "AudioFile",
     "AuditLog",
     "Base",
@@ -43,11 +47,13 @@ __all__ = [
     "Project",
     "RawModelOutput",
     "Report",
+    "ReviewEvent",
     "ResearchItem",
     "SchemaVersion",
     "Site",
     "SoundClass",
     "SpeciesReference",
     "User",
+    "UsageEvent",
     "WeeklyReview",
 ]

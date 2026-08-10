@@ -19,6 +19,8 @@ def test_alembic_migration_applies_to_test_database(tmp_path, monkeypatch):
     assert "organizations" in inspector.get_table_names()
     assert "processing_jobs" in inspector.get_table_names()
     assert "detections" in inspector.get_table_names()
+    assert "api_keys" in inspector.get_table_names()
+    assert "review_events" in inspector.get_table_names()
+    assert "usage_events" in inspector.get_table_names()
 
     get_settings.cache_clear()
-

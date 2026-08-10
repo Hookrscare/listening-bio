@@ -33,6 +33,7 @@ class Organization(TimestampMixin, Base):
     website_url: Mapped[str | None] = mapped_column(String(500))
 
     projects: Mapped[list["Project"]] = relationship(back_populates="organization")
+    api_keys: Mapped[list["APIKey"]] = relationship(back_populates="organization")
 
 
 class User(TimestampMixin, Base):
@@ -175,6 +176,51 @@ class Detection(TimestampMixin, Base):
     review_status: Mapped[str] = mapped_column(String(50), nullable=False, default="unreviewed")
 
     processing_job: Mapped[ProcessingJob] = relationship(back_populates="detections")
+    review_events: Mapped[list["ReviewEvent"]] = relationship(back_populates="detection")
+
+
+class APIKey(TimestampMixin, Base):
+    __tablename__ = "api_keys"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    organization_id: Mapped[str] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    key_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    prefix: Mapped[str] = mapped_column(String(16), nullable=False)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+    organization: Mapped[Organization] = relationship(back_populates="api_keys")
+
+
+class ReviewEvent(Base):
+    __tablename__ = "review_events"
+    __table_args__ = (
+        CheckConstraint("previous_status in ('unreviewed', 'confirmed', 'rejected')", name="ck_review_event_previous_status"),
+        CheckConstraint("new_status in ('unreviewed', 'confirmed', 'rejected')", name="ck_review_event_new_status"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    detection_id: Mapped[str] = mapped_column(ForeignKey("detections.id", ondelete="CASCADE"), nullable=False, index=True)
+    reviewer_id: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    previous_status: Mapped[str] = mapped_column(String(50), nullable=False)
+    new_status: Mapped[str] = mapped_column(String(50), nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+
+    detection: Mapped[Detection] = relationship(back_populates="review_events")
+
+
+class UsageEvent(Base):
+    __tablename__ = "usage_events"
+    __table_args__ = (CheckConstraint("quantity >= 0", name="ck_usage_event_quantity_nonnegative"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    organization_id: Mapped[str] = mapped_column(ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
+    event_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    quantity: Mapped[float] = mapped_column(Float, nullable=False)
+    resource_id: Mapped[str | None] = mapped_column(String(36))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False, index=True)
 
 
 class RawModelOutput(TimestampMixin, Base):

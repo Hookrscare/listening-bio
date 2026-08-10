@@ -146,6 +146,11 @@ The verified real-audio demo processed Xeno-canto `XC364638` in configured BirdN
 - `GET /exports/sites.geojson?project_id={project_id}`
 - `GET /exports/audio-files.csv?project_id={project_id}`
 - `GET /exports/evidence-package.md?project_id={project_id}`
+- `POST /v1/evidence/model-runs` (`X-API-Key` required)
+- `POST /v1/evidence/detections/{detection_id}/reviews` (`X-API-Key` required)
+- `GET /v1/evidence/detections/{detection_id}/reviews` (`X-API-Key` required)
+
+The Evidence API accepts partner-generated model output, retains raw provenance, meters imports, and records reviews as an append-only history. Only API-key hashes are stored. See [docs/evidence-api-v1.md](docs/evidence-api-v1.md) for its security boundary and production gates.
 
 ## Worker
 
@@ -163,4 +168,4 @@ The worker dispatches `mock_audio_analysis` and `birdnet_analysis` jobs.
 
 ## Current Boundary
 
-This is a working local MVP demo with a polished frontend, real WAV upload, local file storage, CSV export, and a BirdNET-ready processing boundary. Real BirdNET installation, YAMNet adapters, authentication, PDF export, production deployment, and scientifically validated biodiversity scoring are intentionally outside this pass.
+This is a working MVP foundation with a polished frontend, real WAV upload, local file storage, CSV export, a BirdNET-ready processing boundary, and an organization-scoped Evidence API. Hosted object storage, end-user authentication, API-key administration, billing, PDF export, production deployment, and scientifically validated biodiversity scoring are not yet complete.

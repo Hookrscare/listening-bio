@@ -2,6 +2,7 @@ from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from backend.app.api.evidence import router as evidence_router
 from backend.app.api.routes import router
 
 app = FastAPI(title="AI Biodiversity Backend", version="0.1.0")
@@ -18,6 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(router)
+app.include_router(evidence_router)
 app.mount("/app", StaticFiles(directory="frontend", html=True), name="frontend")
 
 
