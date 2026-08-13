@@ -1,0 +1,101 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: listening_bio
+      POSTGRES_USER: listening_bio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U listening_bio -d listening_bio"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - private
+
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment: &app_environment
+      APP_NAME: Listening.bio Evidence API
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+psycopg://listening_bio:${POSTGRES_PASSWORD}@postgres:5432/listening_bio
+      UPLOAD_DIR: /app/work/uploads
+      BIRDNET_MIN_CONFIDENCE: ${BIRDNET_MIN_CONFIDENCE:-0.25}
+    command: ["alembic", "-c", "database/alembic.ini", "upgrade", "head"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - private
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment: *app_environment
+    volumes:
+      - audio_uploads:/app/work/uploads
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+      - private
+      - public
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      <<: *app_environment
+      WORKER_POLL_SECONDS: 5
+      WORKER_BATCH_SIZE: 2
+    volumes:
+      - audio_uploads:/app/work/uploads
+    command: ["python", "-m", "backend.app.workers.worker_loop"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - private
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - public
+
+volumes:
+  postgres_data:
+  audio_uploads:
+  caddy_data:
+  caddy_config:
+
+networks:
+  private:
+    internal: true
+  public:
