@@ -50,9 +50,10 @@ services:
       interval: 15s
       timeout: 5s
       retries: 10
+    ports:
+      - "127.0.0.1:8000:8000"
     networks:
       - private
-      - public
 
   worker:
     build:
@@ -72,30 +73,10 @@ services:
     networks:
       - private
 
-  caddy:
-    image: caddy:2.8-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      api:
-        condition: service_healthy
-    networks:
-      - public
-
 volumes:
   postgres_data:
   audio_uploads:
-  caddy_data:
-  caddy_config:
 
 networks:
   private:
     internal: true
-  public:
