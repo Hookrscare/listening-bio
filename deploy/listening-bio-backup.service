@@ -1,0 +1,14 @@
+[Unit]
+Description=Listening.bio PostgreSQL backup
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/listening-bio-operator backup
+User=root
+Group=root
+Nice=15
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+

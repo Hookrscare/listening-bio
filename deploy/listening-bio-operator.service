@@ -1,0 +1,15 @@
+[Unit]
+Description=Listening.bio restricted health operator
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/listening-bio-operator check
+User=root
+Group=root
+Nice=10
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+

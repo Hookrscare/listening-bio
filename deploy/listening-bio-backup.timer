@@ -1,0 +1,10 @@
+[Unit]
+Description=Back up Listening.bio PostgreSQL daily
+
+[Timer]
+OnCalendar=*-*-* 04:15:00 America/New_York
+RandomizedDelaySec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
