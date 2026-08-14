@@ -7,6 +7,8 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 from backend.app.models import AudioFile, Detection, Organization, ProcessingJob, Project, RawModelOutput, Site
+from backend.app.config import Settings, get_settings
+from backend.app.main import app
 from backend.app.services.job_state import transition_job
 
 
@@ -22,6 +24,19 @@ def test_health_endpoint(client):
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_admin_key_protects_write_routes_when_configured(client, db_session):
+    app.dependency_overrides[get_settings] = lambda: Settings(admin_api_key="test-admin-key")
+    organization = db_session.scalar(select(Organization))
+    payload = {"organization_id": organization.id, "name": "Protected Pilot"}
+
+    assert client.get("/projects").status_code == 200
+    assert client.post("/projects", json=payload).status_code == 401
+    assert client.post("/projects", json=payload, headers={"X-Admin-Key": "wrong"}).status_code == 403
+
+    response = client.post("/projects", json=payload, headers={"X-Admin-Key": "test-admin-key"})
+    assert response.status_code == 201
 
 
 def test_birdnet_status_endpoint(client):

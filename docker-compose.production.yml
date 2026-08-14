@@ -26,6 +26,7 @@ services:
       DATABASE_URL: postgresql+psycopg://listening_bio:${POSTGRES_PASSWORD}@postgres:5432/listening_bio
       UPLOAD_DIR: /app/work/uploads
       BIRDNET_MIN_CONFIDENCE: ${BIRDNET_MIN_CONFIDENCE:-0.25}
+      ADMIN_API_KEY: ${ADMIN_API_KEY:?ADMIN_API_KEY is required}
     command: ["alembic", "-c", "database/alembic.ini", "upgrade", "head"]
     depends_on:
       postgres:

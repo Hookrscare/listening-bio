@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     birdnet_command: str | None = None
     birdnet_timeout_seconds: int = 300
     birdnet_min_confidence: float = 0.25
+    admin_api_key: str | None = None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

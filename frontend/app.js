@@ -23,10 +23,24 @@ const $ = (selector) => document.querySelector(selector);
 
 async function api(path, options = {}) {
   const isFormData = options.body instanceof FormData;
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: { ...(isFormData ? {} : { "Content-Type": "application/json" }), ...(options.headers || {}) },
+  const isWrite = options.method && options.method.toUpperCase() !== "GET";
+  let adminKey = sessionStorage.getItem("listeningBioAdminKey");
+  const request = () => fetch(`${API_BASE}${path}`, {
     ...options,
+    headers: {
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...(adminKey && isWrite ? { "X-Admin-Key": adminKey } : {}),
+      ...(options.headers || {}),
+    },
   });
+  let response = await request();
+  if (isWrite && response.status === 401) {
+    adminKey = window.prompt("Enter the operator key to continue");
+    if (adminKey) {
+      sessionStorage.setItem("listeningBioAdminKey", adminKey);
+      response = await request();
+    }
+  }
   if (!response.ok) {
     const detail = await response.text();
     throw new Error(detail || `Request failed: ${response.status}`);

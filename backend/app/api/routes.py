@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from backend.app.config import get_settings
+from backend.app.api.deps import require_admin_key
 from backend.app.db.session import get_db
 from backend.app.models import AudioFile, Detection, Organization, ProcessingJob, Project, RawModelOutput, Report, Site
 from backend.app.schemas.api import (
@@ -287,7 +288,7 @@ def list_projects(db: Session = Depends(get_db)) -> list[Project]:
     return list(db.scalars(select(Project).order_by(Project.name)))
 
 
-@router.post("/projects", response_model=ProjectRead, status_code=201)
+@router.post("/projects", response_model=ProjectRead, status_code=201, dependencies=[Depends(require_admin_key)])
 def create_project(payload: ProjectCreate, db: Session = Depends(get_db)) -> Project:
     organization = db.get(Organization, payload.organization_id)
     if organization is None:
@@ -399,7 +400,7 @@ def list_sites(project_id: str | None = None, db: Session = Depends(get_db)) -> 
     return list(db.scalars(query.order_by(Site.name)))
 
 
-@router.post("/sites", response_model=SiteRead, status_code=201)
+@router.post("/sites", response_model=SiteRead, status_code=201, dependencies=[Depends(require_admin_key)])
 def create_site(payload: SiteCreate, db: Session = Depends(get_db)) -> Site:
     project = db.get(Project, payload.project_id)
     if project is None:
@@ -421,7 +422,7 @@ def get_site(site_id: str, db: Session = Depends(get_db)) -> Site:
     return site
 
 
-@router.post("/audio-files", response_model=AudioFileRead, status_code=201)
+@router.post("/audio-files", response_model=AudioFileRead, status_code=201, dependencies=[Depends(require_admin_key)])
 def create_audio_file(payload: AudioFileCreate, db: Session = Depends(get_db)) -> AudioFile:
     site = db.get(Site, payload.site_id)
     if site is None:
@@ -445,7 +446,12 @@ def create_audio_file(payload: AudioFileCreate, db: Session = Depends(get_db)) -
     return audio_file
 
 
-@router.post("/audio-files/upload", response_model=AudioFileRead, status_code=201)
+@router.post(
+    "/audio-files/upload",
+    response_model=AudioFileRead,
+    status_code=201,
+    dependencies=[Depends(require_admin_key)],
+)
 async def upload_audio_file(
     site_id: str = Form(...),
     duration_seconds: float | None = Form(default=None),
@@ -511,7 +517,12 @@ def get_audio_file(audio_file_id: str, db: Session = Depends(get_db)) -> AudioFi
     return audio_file
 
 
-@router.post("/processing-jobs", response_model=ProcessingJobRead, status_code=201)
+@router.post(
+    "/processing-jobs",
+    response_model=ProcessingJobRead,
+    status_code=201,
+    dependencies=[Depends(require_admin_key)],
+)
 def create_processing_job(payload: ProcessingJobCreate, db: Session = Depends(get_db)) -> ProcessingJob:
     audio_file = db.get(AudioFile, payload.audio_file_id)
     if audio_file is None:
@@ -557,12 +568,20 @@ def _run_processing_job(job_id: str, db: Session) -> ProcessingJob:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@router.post("/processing-jobs/{job_id}/run", response_model=ProcessingJobRead)
+@router.post(
+    "/processing-jobs/{job_id}/run",
+    response_model=ProcessingJobRead,
+    dependencies=[Depends(require_admin_key)],
+)
 def run_processing_job(job_id: str, db: Session = Depends(get_db)) -> ProcessingJob:
     return _run_processing_job(job_id, db)
 
 
-@router.post("/processing-jobs/{job_id}/run-mock", response_model=ProcessingJobRead)
+@router.post(
+    "/processing-jobs/{job_id}/run-mock",
+    response_model=ProcessingJobRead,
+    dependencies=[Depends(require_admin_key)],
+)
 def run_processing_job_legacy(job_id: str, db: Session = Depends(get_db)) -> ProcessingJob:
     return _run_processing_job(job_id, db)
 
@@ -592,7 +611,11 @@ def get_detection(detection_id: str, db: Session = Depends(get_db)) -> Detection
     return detection
 
 
-@router.patch("/detections/{detection_id}", response_model=DetectionRead)
+@router.patch(
+    "/detections/{detection_id}",
+    response_model=DetectionRead,
+    dependencies=[Depends(require_admin_key)],
+)
 def update_detection(detection_id: str, payload: DetectionUpdate, db: Session = Depends(get_db)) -> Detection:
     detection = db.get(Detection, detection_id)
     if detection is None:
@@ -619,7 +642,7 @@ def list_raw_model_outputs(
     return list(db.scalars(query.order_by(RawModelOutput.created_at.desc())))
 
 
-@router.post("/reports", response_model=ReportRead, status_code=201)
+@router.post("/reports", response_model=ReportRead, status_code=201, dependencies=[Depends(require_admin_key)])
 def create_report(payload: ReportCreate, db: Session = Depends(get_db)) -> Report:
     project = db.get(Project, payload.project_id)
     if project is None:
