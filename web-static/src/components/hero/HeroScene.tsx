@@ -243,6 +243,61 @@ function AcousticRippleRings() {
   );
 }
 
+function BioacousticSphere() {
+  const sphereRef = useRef<THREE.Group>(null);
+  const meshRef = useRef<THREE.Mesh>(null);
+  const { energyRef } = useAudio();
+  const { pointer, motionSuppressed } = useExperience();
+
+  useFrame((_, delta) => {
+    if (!sphereRef.current || motionSuppressed) return;
+    const targetScale = 1 + energyRef.current * 0.35;
+    sphereRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+    sphereRef.current.rotation.y += delta * 0.4 + pointer.current.vx * 0.1;
+    sphereRef.current.rotation.x += delta * 0.2;
+    if (meshRef.current) {
+      meshRef.current.rotation.z -= delta * 0.3;
+    }
+  });
+
+  return (
+    <group ref={sphereRef} position={[2.2, 0.4, -0.2]}>
+      {/* Outer wireframe sphere */}
+      <mesh ref={meshRef}>
+        <icosahedronGeometry args={[1.1, 3]} />
+        <meshStandardMaterial
+          color="#b7ff65"
+          wireframe
+          transparent
+          opacity={0.38}
+          emissive="#72f2c7"
+          emissiveIntensity={0.6}
+        />
+      </mesh>
+      {/* Inner glowing core */}
+      <mesh>
+        <sphereGeometry args={[0.55, 32, 32]} />
+        <meshStandardMaterial
+          color="#72f2c7"
+          emissive="#b7ff65"
+          emissiveIntensity={1.2}
+          roughness={0.1}
+          metalness={0.8}
+        />
+      </mesh>
+      {/* Orbital frequency ring */}
+      <mesh rotation={[Math.PI / 3, 0, 0]}>
+        <ringGeometry args={[1.35, 1.38, 48]} />
+        <meshBasicMaterial color="#b7ff65" transparent opacity={0.6} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 4, Math.PI / 4, 0]}>
+        <ringGeometry args={[1.55, 1.57, 48]} />
+        <meshBasicMaterial color="#72f2c7" transparent opacity={0.4} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+}
+
 export function HeroScene({
   tier,
 }: {
@@ -250,11 +305,12 @@ export function HeroScene({
 }) {
   return (
     <>
-      <ambientLight intensity={0.7} />
-      <pointLight position={[2, 3, 2]} intensity={1.4} color={"#b7ff65"} />
-      <pointLight position={[-3, 1, -2]} intensity={0.8} color={"#72f2c7"} />
-      <fog attach="fog" args={["#030706", 5, 12]} />
+      <ambientLight intensity={0.8} />
+      <pointLight position={[2, 3, 2]} intensity={1.8} color={"#b7ff65"} />
+      <pointLight position={[-3, 1, -2]} intensity={1.0} color={"#72f2c7"} />
+      <fog attach="fog" args={["#030706", 5, 13]} />
       <LivingMembrane tier={tier} />
+      <BioacousticSphere />
       <AcousticRippleRings />
       <AtmosphericField tier={tier} />
       <CameraRig />

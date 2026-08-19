@@ -20,7 +20,7 @@ describe("App renders core content without WebGL/Audio", () => {
   it("shows the hero headline, evidence, pilot, and contact", () => {
     render(<App />);
     expect(
-      screen.getByRole("heading", { name: /Listen to nature/i, level: 1 }),
+      screen.getByRole("heading", { name: /Nature leaves a signal/i, level: 1 }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: /Hear it\. Inspect it\. Decide\./i }),

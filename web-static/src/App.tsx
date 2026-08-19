@@ -8,6 +8,7 @@ import { EvidenceDemo } from "./components/evidence/EvidenceDemo";
 import { InteractiveSoundboard } from "./components/evidence/InteractiveSoundboard";
 import { SpeciesConstellation3D } from "./components/hero/SpeciesConstellation3D";
 import { RoiCalculator } from "./components/sections/RoiCalculator";
+import { EnterpriseGovernance } from "./components/sections/EnterpriseGovernance";
 import {
   Boundary,
   Budget,
@@ -54,6 +55,9 @@ export function App() {
 
           {/* Transparent pilot planning scenario */}
           <RoiCalculator />
+
+          {/* Enterprise Governance, Data Sovereignty & Field Protocol */}
+          <EnterpriseGovernance />
 
           <Pilot />
           <Partners />

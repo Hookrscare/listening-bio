@@ -9,6 +9,8 @@ export type AnalyticsEvent =
   | "sensory_mode_changed"
   | "visual_quality_changed"
   | "hero_pilot_cta_clicked"
+  | "hero_sound_chip_played"
+  | "hero_roi_cta_clicked"
   | "evidence_demo_started"
   | "detection_selected"
   | "review_status_changed"
