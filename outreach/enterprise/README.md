@@ -43,6 +43,7 @@ submissions, or compliance determinations.
 - `account-research.csv`: sourced account-level routes; no invented contacts.
 - `SAFE-OUTREACH-SEQUENCES.md`: conservative first-contact templates.
 - `CLAIM-REGISTER.md`: claims that may and may not be used.
+- `CAMPAIGN-OPERATIONS.md`: Hostinger Mail connection, schedule, and approval
+  controls.
 - `../../scripts/generate_demo_evidence_package.py`: transparent WAV evidence
   draft generator with no fabricated inference.
-
