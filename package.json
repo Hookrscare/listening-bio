@@ -1,0 +1,29 @@
+{
+  "name": "listening-bio-saas",
+  "version": "1.0.0",
+  "description": "listening.bio SaaS - AI Biodiversity Audio Monitoring Platform",
+  "main": "backend/app/main.py",
+  "type": "module",
+  "scripts": {
+    "gemini": "gemini",
+    "gemini:chat": "gemini",
+    "test": "make test && npm --prefix web-static test",
+    "build": "npm --prefix web-static run build && npm --prefix website run build",
+    "dev:backend": "make serve",
+    "dev:static": "npm --prefix web-static run dev",
+    "dev:website": "npm --prefix website run dev"
+  },
+  "devDependencies": {
+    "@google/gemini-cli": "^0.55.1"
+  },
+  "keywords": [
+    "gemini",
+    "ai",
+    "biodiversity",
+    "audio-monitoring",
+    "saas",
+    "birdnet"
+  ],
+  "author": "",
+  "license": "ISC"
+}

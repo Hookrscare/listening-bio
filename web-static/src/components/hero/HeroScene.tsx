@@ -217,6 +217,32 @@ function PerformanceController() {
   return null;
 }
 
+function AcousticRippleRings() {
+  const ringsRef = useRef<THREE.Group>(null);
+  const { energyRef } = useAudio();
+  const { motionSuppressed } = useExperience();
+
+  useFrame((_, delta) => {
+    if (!ringsRef.current || motionSuppressed) return;
+    const scale = 1 + energyRef.current * 0.4;
+    ringsRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.1);
+    ringsRef.current.rotation.z += delta * 0.08;
+  });
+
+  return (
+    <group ref={ringsRef} position={[0, -0.2, -0.5]}>
+      <mesh rotation={[-Math.PI / 2.3, 0, 0]}>
+        <ringGeometry args={[2.8, 2.82, 64]} />
+        <meshBasicMaterial color="#b7ff65" transparent opacity={0.3} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2.3, 0, 0]}>
+        <ringGeometry args={[3.6, 3.615, 64]} />
+        <meshBasicMaterial color="#72f2c7" transparent opacity={0.2} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+}
+
 export function HeroScene({
   tier,
 }: {
@@ -224,11 +250,12 @@ export function HeroScene({
 }) {
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <pointLight position={[2, 3, 2]} intensity={1.2} color={"#b7ff65"} />
-      <pointLight position={[-3, 1, -2]} intensity={0.6} color={"#72f2c7"} />
+      <ambientLight intensity={0.7} />
+      <pointLight position={[2, 3, 2]} intensity={1.4} color={"#b7ff65"} />
+      <pointLight position={[-3, 1, -2]} intensity={0.8} color={"#72f2c7"} />
       <fog attach="fog" args={["#030706", 5, 12]} />
       <LivingMembrane tier={tier} />
+      <AcousticRippleRings />
       <AtmosphericField tier={tier} />
       <CameraRig />
       <PerformanceController />

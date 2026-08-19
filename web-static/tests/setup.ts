@@ -23,3 +23,14 @@ if (typeof globalThis.IntersectionObserver === "undefined") {
   globalThis.IntersectionObserver =
     IO as unknown as typeof IntersectionObserver;
 }
+
+// jsdom lacks ResizeObserver; provide a no-op stub for component tests.
+if (typeof globalThis.ResizeObserver === "undefined") {
+  class RO {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  globalThis.ResizeObserver = RO as unknown as typeof ResizeObserver;
+}
+

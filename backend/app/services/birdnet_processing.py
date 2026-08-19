@@ -9,7 +9,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -40,16 +40,16 @@ def birdnet_status() -> dict[str, object]:
         "timeout_seconds": settings.birdnet_timeout_seconds,
         "command_template_present": bool(settings.birdnet_command),
         "supported_outputs": ["json", "csv", "table"],
-        "recommended_command": f"{sys.executable} -m birdnet_analyzer.analyze {{input}} -o {{output_dir}} --rtype csv --min_conf {{min_conf}}",
+        "recommended_command": f'"{sys.executable}" -m birdnet_analyzer.analyze {{input}} -o {{output_dir}} --rtype csv --min_conf {{min_conf}}',
     }
 
 
 def _audio_path(storage_uri: str) -> Path | None:
     parsed = urlparse(storage_uri)
     if parsed.scheme == "file":
-        return Path(parsed.path)
+        return Path(unquote(parsed.path))
     if not parsed.scheme:
-        return Path(storage_uri)
+        return Path(unquote(storage_uri))
     return None
 
 
@@ -219,9 +219,9 @@ def _run_configured_birdnet(db: Session, audio_file: AudioFile) -> BirdnetRun:
         output_dir = Path(tmpdir)
         output_path = output_dir / "birdnet-results.json"
         rendered = command.format(
-            input=str(audio_path),
-            output=str(output_path),
-            output_dir=str(output_dir),
+            input=shlex.quote(str(audio_path)),
+            output=shlex.quote(str(output_path)),
+            output_dir=shlex.quote(str(output_dir)),
             lat="" if site is None or site.latitude is None else site.latitude,
             lon="" if site is None or site.longitude is None else site.longitude,
             week=_birdnet_week(audio_file.recorded_at),

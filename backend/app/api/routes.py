@@ -873,3 +873,55 @@ def export_evidence_package_markdown(project_id: str, db: Session = Depends(get_
         media_type="text/markdown",
         headers={"Content-Disposition": 'attachment; filename="evidence-package.md"'},
     )
+
+
+@router.get("/exports/tnfd-biodiversity.json")
+def export_tnfd_biodiversity_json(project_id: str, db: Session = Depends(get_db)) -> Response:
+    package = _project_evidence_package(project_id, db)
+    summary = package.get("summary") or {}
+    metrics = package.get("metrics") or {}
+    readiness = package.get("readiness") or {}
+
+    tnfd_payload = {
+        "framework": "TNFD v1.0 Nature-Related Financial Disclosures",
+        "standard_reference": "LEAP (Locate, Evaluate, Assess, Prepare)",
+        "disclosure_metric": "State of Nature - Acoustic Species Richness & Bioacoustic Integrity",
+        "project": package.get("project"),
+        "evidence_integrity": {
+            "evidence_level": readiness.get("evidence_level"),
+            "readiness_score": readiness.get("readiness_score"),
+            "claim_status": readiness.get("claim_status"),
+        },
+        "indicators": {
+            "monitored_sites_count": summary.get("site_count", 0),
+            "recording_effort_hours": metrics.get("recording_hours", 0),
+            "species_richness_observed": metrics.get("species_richness", 0),
+            "shannon_diversity_index": metrics.get("species_diversity_shannon", 0.0),
+            "detections_per_effort_hour": metrics.get("detections_per_hour", 0.0),
+            "expert_confirmed_percent": metrics.get("confirmed_detection_percent", 0.0),
+        },
+        "sites": package.get("sites", []),
+        "top_species_observed": package.get("top_species", []),
+        "governance_note": package.get("disclaimer"),
+    }
+    return Response(
+        content=json.dumps(tnfd_payload, indent=2),
+        media_type="application/json",
+        headers={"Content-Disposition": 'attachment; filename="tnfd-biodiversity-disclosure.json"'},
+    )
+
+
+@router.get("/exports/esrs-compliance.json")
+def export_esrs_compliance_json(project_id: str, db: Session = Depends(get_db)) -> Response:
+    package = _project_evidence_package(project_id, db)
+    esrs_payload = {
+        "standard": "CSRD - ESRS E4 Biodiversity and Ecosystems",
+        "disclosure_topic": "E4-4 Impact metrics on biodiversity and ecosystems change",
+        "evidence_package": package,
+    }
+    return Response(
+        content=json.dumps(esrs_payload, indent=2),
+        media_type="application/json",
+        headers={"Content-Disposition": 'attachment; filename="esrs-e4-compliance.json"'},
+    )
+

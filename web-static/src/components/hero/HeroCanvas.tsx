@@ -1,4 +1,4 @@
-import { Component, type ReactNode } from "react";
+import { Component, useState, type ReactNode } from "react";
 import { Canvas } from "@react-three/fiber";
 import { TIER_BUDGETS, type QualityTier } from "../../lib/capability";
 import { useExperience } from "../../providers/ExperienceProvider";
@@ -21,13 +21,14 @@ class WebGLErrorBoundary extends Component<
 function HeroCanvasInner({ fallback }: { fallback: ReactNode }) {
   const { quality, pageVisible, windowFocused, motionSuppressed } =
     useExperience();
+  const [contextLost, setContextLost] = useState(false);
 
-  if (quality === "unsupported" || motionSuppressed) {
+  if (quality === "unsupported" || motionSuppressed || contextLost) {
     return <>{fallback}</>;
   }
 
   const tier = quality as Exclude<QualityTier, "unsupported">;
-  const dpr = Math.min(window.devicePixelRatio, TIER_BUDGETS[tier].dprCeiling);
+  const dpr = Math.min(window.devicePixelRatio || 1, TIER_BUDGETS[tier].dprCeiling);
 
   return (
     <WebGLErrorBoundary fallback={fallback}>
@@ -39,6 +40,15 @@ function HeroCanvasInner({ fallback }: { fallback: ReactNode }) {
         gl={{ antialias: tier === "high", powerPreference: "high-performance" }}
         // Pause the render loop when hidden/blurred (spec §11).
         frameloop={pageVisible && windowFocused ? "always" : "never"}
+        onCreated={({ gl }) => {
+          const domElem = gl.domElement;
+          if (domElem) {
+            domElem.addEventListener("webglcontextlost", (e) => {
+              e.preventDefault();
+              setContextLost(true);
+            }, { once: true });
+          }
+        }}
       >
         <HeroScene tier={tier} />
       </Canvas>

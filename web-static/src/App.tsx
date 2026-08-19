@@ -5,6 +5,9 @@ import { Footer } from "./components/layout/Footer";
 import { Hero } from "./components/hero/Hero";
 import { Narrative } from "./components/narrative/Narrative";
 import { EvidenceDemo } from "./components/evidence/EvidenceDemo";
+import { InteractiveSoundboard } from "./components/evidence/InteractiveSoundboard";
+import { SpeciesConstellation3D } from "./components/hero/SpeciesConstellation3D";
+import { RoiCalculator } from "./components/sections/RoiCalculator";
 import {
   Boundary,
   Budget,
@@ -29,7 +32,29 @@ export function App() {
           <Proof />
           <Statement />
           <Narrative />
+
+          {/* 3D Taxonomic Galaxy */}
+          <section className="section constellation-section" id="constellation" aria-label="3D Taxonomic Galaxy">
+            <div className="section-header">
+              <p className="eyebrow">Spatial Bioacoustic Network</p>
+              <h2>Real-time 3D<br />taxonomic <em>topology.</em></h2>
+              <p className="section-deck">
+                Explore acoustic detections distributed across frequency space and taxonomic relationships in an
+                interactive 3D orbital cluster.
+              </p>
+            </div>
+            <SpeciesConstellation3D />
+          </section>
+
+          {/* Real-time Bioacoustic Soundboard */}
+          <InteractiveSoundboard />
+
+          {/* Verifiable Provenance Evidence Demo */}
           <EvidenceDemo />
+
+          {/* Enterprise B2B ROI & TNFD Compliance Calculator */}
+          <RoiCalculator />
+
           <Pilot />
           <Partners />
           <Budget />

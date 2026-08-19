@@ -274,98 +274,516 @@
   text-underline-offset: 0.18em;
 }
 
-/* ============ Contact / conversion ============ */
-.contact {
+/* ============ 3D Taxonomic Galaxy Section ============ */
+.constellation-section {
   background: var(--black);
-  padding: 130px var(--pad-x);
+  padding: 110px var(--pad-x);
   border-bottom: 1px solid var(--line);
 }
-.contact-grid {
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  gap: 6vw;
+.constellation-3d-wrapper {
+  position: relative;
+  width: 100%;
+  height: 480px;
   margin-top: 40px;
-  align-items: start;
-}
-.contact-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.contact-form .full {
-  grid-column: 1 / -1;
-}
-.field {
-  display: grid;
-  gap: 6px;
-}
-.field label {
-  color: var(--muted);
-  font: 500 0.68rem/1 ui-monospace, monospace;
-  text-transform: uppercase;
-}
-.field input,
-.field select,
-.field textarea {
-  min-height: 46px;
-  padding: 11px 13px;
   border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--surface);
-  color: var(--ink);
-  font-family: inherit;
-  font-size: 0.9rem;
-}
-.field textarea {
-  min-height: 96px;
-  resize: vertical;
-}
-.field input:focus,
-.field select:focus,
-.field textarea:focus {
-  border-color: rgba(183, 255, 101, 0.55);
-  outline: none;
-}
-.field .err {
-  color: var(--danger);
-  font-size: 0.75rem;
-}
-.honeypot {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 50%, #06140e 0%, #030706 90%);
   overflow: hidden;
 }
-.form-status {
-  grid-column: 1 / -1;
-  min-height: 24px;
-  font-size: 0.85rem;
+.constellation-3d-wrapper .canvas-container {
+  width: 100%;
+  height: 100%;
 }
-.form-status.success {
+.constellation-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.hud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  background: rgba(3, 7, 6, 0.85);
+  border: 1px solid rgba(183, 255, 101, 0.4);
+  backdrop-filter: blur(12px);
+  color: var(--lime);
+  font: 600 0.68rem/1 ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  align-self: flex-start;
+}
+.hud-badge .live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 8px var(--lime);
+  animation: pulse 1.5s infinite;
+}
+.active-species-card {
+  pointer-events: auto;
+  max-width: 380px;
+  padding: 20px;
+  border-radius: 10px;
+  background: rgba(4, 12, 8, 0.88);
+  border: 1px solid rgba(183, 255, 101, 0.45);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+}
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+.species-tag {
+  color: var(--lime);
+  font: 600 0.65rem/1 ui-monospace, monospace;
+  text-transform: uppercase;
+}
+.card-top h4 {
+  margin: 6px 0 2px;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.sci-name {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.confidence-pill {
+  text-align: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(183, 255, 101, 0.12);
+  border: 1px solid rgba(183, 255, 101, 0.35);
   color: var(--lime);
 }
-.form-status.error {
-  color: var(--danger);
+.confidence-pill strong {
+  display: block;
+  font-size: 1.1rem;
 }
-.contact-note {
-  margin-top: 18px;
-  color: var(--muted);
-  font-size: 0.8rem;
-  line-height: 1.6;
+.confidence-pill span {
+  font: 500 0.58rem/1 ui-monospace, monospace;
+  text-transform: uppercase;
 }
-.role-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.card-actions {
+  margin-top: 14px;
+}
+.play-node-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: var(--lime);
+  color: #030706;
+  font-weight: 600;
+  font-size: 0.78rem;
+  border: none;
+  cursor: pointer;
+}
+.play-node-btn:hover {
+  background: #d0ff9e;
 }
 
+/* ============ Interactive Soundboard ============ */
+.interactive-soundboard-container {
+  background: var(--surface);
+  padding: 120px var(--pad-x);
+  border-bottom: 1px solid var(--line);
+}
+.soundboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+.soundboard-header h3 {
+  font-size: clamp(2.2rem, 4.5vw, 4rem);
+  font-weight: 400;
+  margin: 8px 0;
+  line-height: 0.95;
+}
+.soundboard-header .subtitle {
+  color: var(--muted);
+  max-width: 580px;
+  margin: 0;
+  font-size: 0.95rem;
+}
+.confidence-slider-box {
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(3, 7, 6, 0.6);
+  display: grid;
+  gap: 8px;
+}
+.confidence-slider-box label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.confidence-slider-box label strong {
+  color: var(--lime);
+}
+.confidence-slider-box input[type="range"] {
+  accent-color: var(--lime);
+  width: 170px;
+}
+.soundboard-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.5fr;
+  gap: 24px;
+  align-items: start;
+}
+.species-list {
+  display: grid;
+  gap: 10px;
+}
+.species-card-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-radius: 8px;
+  background: var(--black);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+.species-card-btn:hover {
+  border-color: rgba(183, 255, 101, 0.4);
+  transform: translateX(4px);
+}
+.species-card-btn.selected {
+  border-color: var(--lime);
+  background: rgba(183, 255, 101, 0.06);
+  box-shadow: 0 0 20px rgba(183, 255, 101, 0.1);
+}
+.species-card-btn.dimmed {
+  opacity: 0.45;
+}
+.species-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.species-title-row strong {
+  font-size: 1.05rem;
+}
+.species-info .scientific-name {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.tags-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.mini-tag,
+.conf-tag {
+  font: 500 0.65rem/1 ui-monospace, monospace;
+  padding: 3px 7px;
+  border-radius: 3px;
+}
+.mini-tag {
+  background: rgba(114, 242, 199, 0.1);
+  color: var(--mint);
+}
+.conf-tag {
+  background: rgba(183, 255, 101, 0.12);
+  color: var(--lime);
+}
+.play-indicator {
+  font-size: 1.1rem;
+  color: var(--lime);
+}
+.audio-wave-anim {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 12px var(--lime);
+  animation: pulse 0.8s infinite;
+}
+.visualizer-station {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--black);
+  padding: 24px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+}
+.station-hud {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.hud-metric span {
+  display: block;
+  color: var(--muted);
+  font: 500 0.6rem/1 ui-monospace, monospace;
+  text-transform: uppercase;
+}
+.hud-metric strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.verified-text {
+  color: var(--lime);
+}
+.canvas-wrapper {
+  margin: 20px 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(183, 255, 101, 0.25);
+  background: #020704;
+}
+.spectrogram-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.station-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.primary-play-btn {
+  padding: 12px 22px;
+  border-radius: 4px;
+  background: var(--lime);
+  color: #030706;
+  font-weight: 600;
+  font-size: 0.82rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(183, 255, 101, 0.25);
+}
+.primary-play-btn:hover {
+  background: #cbfda0;
+}
+.human-review-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.review-label {
+  font: 500 0.72rem/1 ui-monospace, monospace;
+  color: var(--muted);
+}
+.btn-group {
+  display: flex;
+  gap: 6px;
+}
+.review-btn {
+  padding: 7px 12px;
+  border-radius: 3px;
+  border: 1px solid var(--line);
+  background: rgba(4, 12, 8, 0.6);
+  color: var(--ink);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.review-btn.confirm.active {
+  background: rgba(183, 255, 101, 0.2);
+  border-color: var(--lime);
+  color: var(--lime);
+}
+.review-btn.uncertain.active {
+  background: rgba(255, 207, 107, 0.2);
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.review-btn.reject.active {
+  background: rgba(255, 139, 107, 0.2);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.station-footnote {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+/* ============ ROI & TNFD Calculator ============ */
+.roi-calculator-section {
+  background: var(--black);
+}
+.roi-calculator-card {
+  display: grid;
+  grid-template-columns: 1.1fr 1.3fr;
+  gap: 32px;
+  margin-top: 48px;
+  padding: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(183, 255, 101, 0.35);
+  background: linear-gradient(135deg, rgba(7, 16, 12, 0.9) 0%, rgba(4, 10, 7, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+.calculator-inputs {
+  display: grid;
+  gap: 24px;
+}
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font: 500 0.72rem/1 ui-monospace, monospace;
+  text-transform: uppercase;
+}
+.slider-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.slider-value {
+  color: var(--lime);
+  font: 600 0.85rem/1 ui-monospace, monospace;
+}
+.styled-select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+.styled-select:focus {
+  border-color: var(--lime);
+  outline: none;
+}
+.calculator-inputs input[type="range"] {
+  width: 100%;
+  accent-color: var(--lime);
+}
+.calculator-results {
+  display: grid;
+  gap: 20px;
+  padding-left: 28px;
+  border-left: 1px solid var(--line);
+}
+.savings-hero-box {
+  padding: 22px;
+  border-radius: 8px;
+  background: rgba(183, 255, 101, 0.08);
+  border: 1px solid rgba(183, 255, 101, 0.35);
+}
+.results-eyebrow {
+  color: var(--lime);
+  font: 600 0.68rem/1 ui-monospace, monospace;
+  letter-spacing: 0.08em;
+}
+.savings-number {
+  font-size: clamp(2.4rem, 4vw, 3.8rem);
+  font-weight: 600;
+  color: #effff8;
+  margin: 6px 0;
+  letter-spacing: -0.02em;
+}
+.savings-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--lime);
+  color: #030706;
+  font: 600 0.7rem/1 ui-monospace, monospace;
+}
+.metrics-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.metric-cell {
+  padding: 14px;
+  border-radius: 6px;
+  background: rgba(4, 12, 8, 0.7);
+  border: 1px solid var(--line);
+}
+.metric-cell.highlight {
+  border-color: rgba(114, 242, 199, 0.4);
+}
+.metric-cell span {
+  display: block;
+  color: var(--muted);
+  font: 500 0.65rem/1 ui-monospace, monospace;
+}
+.metric-cell strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.15rem;
+}
+.compliance-readiness-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 6px;
+  background: rgba(114, 242, 199, 0.08);
+  border: 1px solid rgba(114, 242, 199, 0.3);
+}
+.compliance-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--mint);
+  color: #030706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+.compliance-readiness-banner strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--mint);
+}
+.compliance-readiness-banner p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.roi-actions {
+  margin-top: 8px;
+}
+
+/* ============ Responsive Adjustments ============ */
 @media (max-width: 900px) {
   .evidence-workspace,
-  .contact-grid {
+  .soundboard-grid,
+  .roi-calculator-card {
     grid-template-columns: 1fr;
   }
-  .contact-form {
-    grid-template-columns: 1fr;
+  .calculator-results {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  .station-hud {
+    grid-template-columns: 1fr 1fr;
   }
 }

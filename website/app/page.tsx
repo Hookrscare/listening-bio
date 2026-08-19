@@ -25,9 +25,12 @@ function SignalField() {
     let frame = 0;
 
     const resize = () => {
-      const ratio = Math.min(window.devicePixelRatio, 2);
-      canvas.width = canvas.clientWidth * ratio;
-      canvas.height = canvas.clientHeight * ratio;
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      if (width <= 0 || height <= 0) return;
+      canvas.width = width * ratio;
+      canvas.height = height * ratio;
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
     const move = (event: PointerEvent) => {

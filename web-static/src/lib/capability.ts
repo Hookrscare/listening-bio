@@ -26,7 +26,8 @@ export function hasWebGL2(): boolean {
   if (typeof document === "undefined") return false;
   try {
     const canvas = document.createElement("canvas");
-    return !!canvas.getContext("webgl2");
+    const gl = canvas.getContext("webgl2") || canvas.getContext("experimental-webgl2");
+    return !!(gl && typeof (gl as WebGL2RenderingContext).isContextLost === "function" ? !(gl as WebGL2RenderingContext).isContextLost() : gl);
   } catch {
     return false;
   }

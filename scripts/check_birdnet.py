@@ -7,7 +7,11 @@ import sys
 from pathlib import Path
 
 
-RECOMMENDED_COMMAND = "{python} -m birdnet_analyzer.analyze {{input}} -o {{output_dir}} --rtype csv --min_conf {{min_conf}}"
+from dotenv import load_dotenv
+
+load_dotenv()
+
+RECOMMENDED_COMMAND = '"{python}" -m birdnet_analyzer.analyze {{input}} -o {{output_dir}} --rtype csv --min_conf {{min_conf}}'
 
 
 def main() -> int:

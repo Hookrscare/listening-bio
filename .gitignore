@@ -22,3 +22,7 @@ listening-bio-dist.zip
 .DS_Store
 .idea/
 .vscode/
+
+# Node
+node_modules/
+

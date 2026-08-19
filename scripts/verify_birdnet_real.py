@@ -7,8 +7,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from sqlalchemy import select
+
+load_dotenv()
 
 from backend.app.db.session import SessionLocal
 from backend.app.main import app
