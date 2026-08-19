@@ -38,6 +38,14 @@ describe("App renders core content without WebGL/Audio", () => {
     expect(
       screen.getAllByText(/Representative demonstration data/i).length,
     ).toBeGreaterThan(0);
+    expect(
+      screen.getByText(/Partner selection open/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Governance terms remain drafts/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Live telemetry/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ESRS E4 compliant/i)).not.toBeInTheDocument();
   });
 
   it("keeps rejected and uncertain candidates visible", () => {

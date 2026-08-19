@@ -1,145 +1,144 @@
-# Enterprise Readiness Playbook: The 9 Corporate Requirements for listening.bio
+# Enterprise Readiness Working Draft
 
-This document provides the complete commercial, legal, scientific, and operational assets required before pitching and signing enterprise / corporate clients (Renewable Energy, Mining, Infrastructure, Forestry, ESG Funds).
+This document tracks the commercial, legal, scientific, and operational work required before Listening.bio signs an enterprise or institutional field-monitoring engagement. It is an internal planning document, not evidence that the requirements below have been completed.
 
----
+## Status Summary
 
-## Table of Contents
-1. [Qualified Ecological Reviewer Protocol & Agreement](#1-qualified-ecological-reviewer-protocol--agreement)
-2. [30-Day Local Field Pilot Execution Plan](#2-30-day-local-field-pilot-execution-plan)
-3. [Real Case Study Structure & Publication Release](#3-real-case-study-structure--publication-release)
-4. [Sample Evidence & TNFD Audit Report](#4-sample-evidence--tnfd-audit-report)
-5. [Data Ownership, Privacy & Retention Terms (DPA / MSA Clause)](#5-data-ownership-privacy--retention-terms)
-6. [Professional Liability & Business Insurance Specifications](#6-professional-liability--business-insurance)
-7. [Standard Proposal, Scope of Work (SOW) & Master Services Agreement (MSA)](#7-standard-proposal-sow--msa)
-8. [Unit Economics, Documented Service Costs & Margin Model](#8-unit-economics-service-costs--target-margin)
-9. [Standard Operating Procedure: Reproducible Field PAM Audio Protocol](#9-sop-reproducible-field-pam-audio-protocol)
+| Requirement | Current status | Exit criterion |
+| --- | --- | --- |
+| Qualified ecological reviewer | Not secured | Named reviewer, verified credentials, signed agreement |
+| Local field pilot | Not completed | Partner-approved protocol and reviewed local dataset |
+| Publishable case study | Simulation only | Written partner permission and verified results |
+| Evidence exports | Prototype implemented | Partner QA and versioned sample package |
+| Data ownership and retention terms | Draft | Counsel-reviewed terms accepted by client |
+| Business insurance | Not verified | Certificates of insurance for required policies |
+| Proposal, SOW, and agreement | Draft structure | Counsel-reviewed templates ready for signature |
+| Service costs and margin | Assumptions only | Measured pilot costs and approved pricing model |
+| Field protocol | Draft | Scientific and site-partner approval |
 
----
+## 1. Qualified Ecological Reviewer
 
-## 1. Qualified Ecological Reviewer Protocol & Agreement
+### Purpose
 
-### Role Definition
-Corporate ESG auditors (TNFD / CSRD) reject purely automated AI detections. Every compliance package must include secondary review by a **Qualified Ecological Reviewer** (credentialed ornithologist, bioacoustician, or wildlife biologist with M.Sc. / Ph.D. or 5+ years field survey experience).
+Automated detections are evidence candidates. A qualified ecologist, ornithologist, or bioacoustics researcher must approve the review protocol and validate the agreed sample before a pilot report presents confirmed observations.
 
-### Reviewer Workflow
-1. **Sample Batch Selection**: System automatically flags high-uncertainty detections (confidence 0.35–0.70) and all candidate red-listed species.
-2. **Spectrogram & Audio Scrub**: Reviewer listens to a 3-second focus window and inspects the frequency contour.
-3. **Status Stamping**: Reviewer signs off: `Confirmed`, `Uncertain`, or `Rejected`.
-4. **Cryptographic Signing**: Reviewer ID, timestamp, and notes are immutably attached to the detection record.
+### Draft reviewer workflow
 
-### Retainer / Contractor Agreement Terms
-* **Rate**: $85–$120 / hour or $0.75 per verified detection candidate window.
-* **Turnaround SLA**: 48 hours for monthly batch review.
-* **Independence**: Reviewer certifies no financial conflict of interest with the corporate client.
+1. Define the sampling and escalation rules before analysis.
+2. Review source audio, spectrogram, timing, model label, and confidence.
+3. Record `Confirmed`, `Uncertain`, or `Rejected` as an append-only review event.
+4. Preserve reviewer identity, timestamp, notes, and original model output.
 
----
+The application supports reviewer-linked events. It does not currently provide cryptographic reviewer signatures or an external assurance opinion.
 
-## 2. 30-Day Local Field Pilot Execution Plan
+### Completion evidence
 
-### Objective
-Deploy 3–5 sensor hubs across representative local sites (e.g. urban woodland, riparian corridor, open meadow) for 30 consecutive days to generate real baseline acoustic datasets.
+- Verified reviewer qualifications
+- Signed contractor or collaboration agreement
+- Agreed rate, conflicts policy, turnaround target, and attribution terms
 
-| Parameter | Specification |
-| :--- | :--- |
-| **Duration** | 30 Continuous Days (720 hours per sensor station) |
-| **Stations** | 3 to 5 passive acoustic monitors (AudioMoth / Song Meter Micro) |
-| **Schedule** | Duty cycle: 1 minute on / 4 minutes off (or 2 hrs dawn + 2 hrs dusk continuous) |
-| **Target Data Yield** | 100 to 250 high-quality WAV files (24-bit/48kHz mono) |
-| **Target Deliverable** | Baseline Acoustic Index (NDSI), Species Richness Curve, Verified Detection Matrix |
+## 2. Founding Field Pilot
 
----
+### Proposed scope
 
-## 3. Real Case Study Structure & Publication Release
+| Parameter | Planning target |
+| --- | --- |
+| Duration | 30 days |
+| Sites | 3 to 5 partner-approved locations |
+| Recordings | 50 to 100 usable WAV files |
+| Analysis | Documented BirdNET configuration and normalized candidates |
+| Review | Qualified review of the agreed representative sample |
+| Deliverables | Dataset, map, CSV exports, evidence memo, and limitations |
 
-### Case Study Framework: "Continuous Acoustic Monitoring at Central Park Urban Corridor"
-* **Executive Summary**: How continuous PAM revealed 14 additional bird species undetected during episodic manual daytime surveys.
-* **Methodology**: 5 sensor nodes recording across dawn chorus and dusk flights; BirdNET Analyzer inference with expert human review.
-* **Findings**:
-  * Total recording hours: 120.5 hours.
-  * Candidate detections: 342.
-  * Verified species richness: 18 distinct avian species (American Robin, Northern Cardinal, Wood Thrush, Great Horned Owl, etc.).
-  * Cost comparison: 68% lower cost per observation hour compared to traditional consultant point counts.
+Sampling windows, equipment, gain, mounting, weather controls, and sensitive-location handling must be approved by the scientific and site partners. These values are planning targets, not completed field results.
 
-### Client Release & Consent Clause
-> *"Client grants listening.bio permission to reference the Project name, anonymized acoustic trends, and aggregate species richness metrics in public case studies, marketing materials, and regulatory methodology whitepapers, provided exact geolocations of sensitive taxa are obscured."*
+## 3. Case Study and Publication Permission
 
----
+The Central Park material in `docs/central-park-pilot-simulation.md` is a planning simulation. It must never be presented as a completed deployment or as evidence of species presence, recording hours, savings, or monitoring performance.
 
-## 4. Sample Evidence & TNFD Audit Report
+A publishable case study requires:
 
-The platform exports complete, audit-ready compliance packages:
-* **JSON Format**: `/exports/tnfd-biodiversity.json` (Structured for ingestion into enterprise ESG data systems).
-* **CSV Format**: `/exports/detections.csv` (Includes raw WAV SHA-256 hashes, timestamps, confidence scores, and reviewer decisions).
-* **Markdown Package**: `/exports/evidence-package.md` (Executive summary with audit disclaimers, methodology boundaries, and species frequency matrices).
+- Partner identity and site permission
+- Verified methods and dates
+- Source-linked, reviewed results
+- Explicit permission for every public metric and quotation
+- Sensitive-location review before publication
 
----
+Draft permission language must be reviewed by the partner and legal counsel before use.
 
-## 5. Data Ownership, Privacy & Retention Terms
+## 4. Prototype Evidence Exports
 
-### Enterprise Data Sovereignty (MSA Clause)
-1. **Client Ownership**: The Client retains 100% exclusive ownership of all raw audio files, metadata, GPS coordinates, and generated biodiversity reports.
-2. **No Unapproved AI Training**: listening.bio agrees never to use Client's private audio recordings to train commercial models without express written authorization.
-3. **Retention & Archival**: Raw WAV files are retained in client-designated cloud storage (AWS S3 / GCP Cloud Storage / Azure Blob) with lifecycle rules (e.g., Hot storage for 90 days, Glacier/Coldline for 5 years).
-4. **Sensitive Species Protection**: GPS coordinates of IUCN red-listed or state-threatened species are blurred to a 10km grid resolution in public-facing dashboards to prevent poaching or disturbance.
+Implemented API exports include:
 
----
+- `GET /exports/detections.csv?project_id={project_id}`
+- `GET /exports/sites.geojson?project_id={project_id}`
+- `GET /exports/detections.geojson?project_id={project_id}`
+- `GET /exports/evidence-package.md?project_id={project_id}`
+- `GET /exports/tnfd-evidence-draft.json?project_id={project_id}`
+- `GET /exports/esrs-e4-evidence-draft.json?project_id={project_id}`
 
-## 6. Professional Liability & Business Insurance
+The framework exports organize supporting evidence only. They are not TNFD or ESRS disclosures, certifications, assurance opinions, or compliance determinations.
 
-Before executing corporate contracts over $25,000, maintain the following coverage:
+## 5. Data Ownership, Privacy, and Retention
 
-| Policy Type | Recommended Limit | Purpose |
-| :--- | :--- | :--- |
-| **Commercial General Liability (CGL)** | $1,000,000 / $2,000,000 | Bodily injury & property damage during field sensor deployment |
-| **Technology Errors & Omissions (E&O)** | $1,000,000 / $2,000,000 | Software defects, algorithmic misclassification, SLA breaches |
-| **Cyber Liability & Data Breach** | $1,000,000 | Cloud data loss, unauthorized access, client data exfiltration |
-| **Workers' Compensation** | Statutory | Required for field technicians deploying sensor hardware |
+### Proposed client terms
 
----
+- The client retains ownership of its raw audio and supplied metadata.
+- Private client audio is not used to train commercial models without written permission.
+- Retention, deletion, backup, and export periods are defined in the engagement agreement.
+- Sensitive species coordinates are restricted or generalized according to the approved protocol.
 
-## 7. Standard Proposal, Scope of Work (SOW) & Master Services Agreement (MSA)
+These are proposed terms. The current local-storage implementation does not yet provide client-configurable lifecycle policies, object lock, direct S3/R2 upload, or automated sensitive-coordinate classification.
 
-### SOW Structure
-* **Section 1: Scope of Monitoring**: Station count, geographic boundary, target taxonomic groups.
-* **Section 2: Deliverables Schedule**:
-  * *Day 1–5*: Sensor deployment, acoustic baseline calibration.
-  * *Day 15*: Mid-pilot health check & telemetry verification.
-  * *Day 35*: Final Verified Biodiversity Evidence Package + TNFD Audit Report.
-* **Section 3: Fee Schedule**: 50% on contract execution, 50% on final report delivery.
-* **Section 4: Limitation of Liability**: Liability capped at the total contract value paid over the preceding 12 months.
+## 6. Insurance
 
----
+Required coverage depends on the client, field activity, jurisdiction, and contract. Likely categories include commercial general liability, technology errors and omissions, cyber liability, workers' compensation, and equipment coverage.
 
-## 8. Unit Economics, Service Costs & Target Margin
+No public statement should claim that coverage is active until current certificates have been verified. Obtain broker quotes after the pilot scope and field responsibilities are known.
 
-```
-[ Traditional Survey Model ]           [ listening.bio SaaS Model ]
-  Field Biologist: $12,000/mo            Hardware Hub: $399 (Amortized over 3 yrs = $11/mo)
-  Travel & Lodging: $2,500/mo            Cellular IoT Data: $12/mo
-  Report Prep: $3,000/mo                 Cloud GPU/Inference: $15/mo
-  TOTAL: $17,500 / month                 TOTAL COGS: $38 / month per station
-                                         REVENUE BILLED: $249 / month per station
-                                         GROSS MARGIN: 84.7%
-```
+## 7. Proposal, SOW, and Agreement
 
-### Margin Structure
-* **Gross Margin on SaaS Subscriptions**: **82% – 88%**.
-* **Gross Margin on Sensor Hardware (HaaS)**: **45% – 55%**.
-* **Gross Margin on Expert Ecological Review Retainer**: **40% – 50%**.
-* **Blended Corporate Account Margin**: **74.5%**.
+The initial written package should define:
 
----
+- Monitoring question, sites, exclusions, and partner responsibilities
+- Equipment, field access, data transfer, and review method
+- Deliverables, acceptance criteria, schedule, and payment milestones
+- Data rights, confidentiality, retention, publication permission, and deletion
+- Scientific limitations and prohibited claims
+- Liability, insurance, cancellation, and dispute terms
 
-## 9. SOP: Reproducible Field PAM Audio Protocol
+The current material is a structure for counsel review, not a turnkey MSA or binding service-level agreement.
 
-### Hardware Setup
-1. **Device**: AudioMoth v1.2 / Song Meter Micro inside IP67 weatherproof acoustic enclosure.
-2. **Mounting**: Fixed to tree trunk or post at **1.5m to 2.0m height**, facing away from prevailing high-wind direction.
-3. **Gain**: Medium / High (+30.6 dB).
-4. **Sample Rate**: 48.0 kHz, 16-bit uncompressed WAV (captures acoustic range from 100 Hz up to 24 kHz Nyquist limit).
-5. **Duty Cycle**:
-   * *Dawn Window* (05:00 – 08:30): 1 min record / 2 min sleep.
-   * *Dusk Window* (18:00 – 21:00): 1 min record / 2 min sleep.
-   * *Nocturnal / Day Sampling*: 1 min record every 10 min.
-6. **Calibration**: Perform acoustic test tone check (1 kHz sine sweep) at deployment to verify microphone membrane integrity.
+## 8. Unit Economics
+
+Do not publish an 80% margin, a 70% savings claim, or a cost comparison until the assumptions have been measured in a real pilot.
+
+Track the following separately:
+
+- Equipment purchase, loss, replacement, and useful life
+- Travel, permits, deployment, retrieval, and local coordination
+- Storage, processing, data transfer, and backup
+- Scientific protocol design and review time
+- Engineering support, reporting, revisions, and insurance
+
+The website may present a transparent planning scenario. Final pricing and margin targets must be based on observed delivery costs.
+
+## 9. Draft Field Protocol
+
+The protocol must record device model, firmware, enclosure, microphone orientation, mounting method, sample rate, bit depth, gain, duty cycle, time zone, weather, habitat notes, calibration method, and chain of custody.
+
+Recommended values should not be hard-coded across every habitat and device. A qualified scientific reviewer should approve equipment-specific settings and calibration before deployment.
+
+## Release Gate
+
+Before calling the service enterprise-ready, confirm all of the following:
+
+- [ ] Named scientific reviewer and signed agreement
+- [ ] Partner and site permission
+- [ ] Approved protocol and safety plan
+- [ ] Insurance certificates required by the engagement
+- [ ] Counsel-reviewed SOW and data terms
+- [ ] Completed field pilot with source-linked review
+- [ ] Measured costs and approved pricing
+- [ ] Publishable case study permission
+- [ ] Evidence package independently checked against source records

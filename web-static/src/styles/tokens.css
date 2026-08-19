@@ -46,18 +46,18 @@ p {
 
 h1 {
   margin-bottom: 30px;
-  font-size: clamp(4.2rem, 9vw, 9.5rem);
+  font-size: 9.5rem;
   font-weight: 400;
   line-height: 0.82;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 h2 {
   margin-bottom: 0;
-  font-size: clamp(3rem, 6.5vw, 6.6rem);
+  font-size: 6.6rem;
   font-weight: 400;
   line-height: 0.9;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 h2 em {
@@ -70,7 +70,7 @@ h2 em {
   color: var(--lime);
   font: 600 0.67rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0;
 }
 
 /* Accessibility: skip link */
@@ -195,5 +195,29 @@ button {
   }
   .section {
     padding: 90px var(--pad-x);
+  }
+  h1 {
+    font-size: 4.2rem;
+  }
+  h2 {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1100px) {
+  h1 {
+    font-size: 6.4rem;
+  }
+  h2 {
+    font-size: 4.6rem;
+  }
+}
+
+@media (max-width: 500px) {
+  h1 {
+    font-size: 3.25rem;
+  }
+  h2 {
+    font-size: 2.6rem;
   }
 }

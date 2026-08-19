@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAudio } from "../../providers/AudioProvider";
 import { useExperience } from "../../providers/ExperienceProvider";
 import { track } from "../../lib/analytics";
@@ -50,14 +51,25 @@ export function SensoryControls() {
 }
 
 export function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <header className="site-header">
       <BrandMark />
-      <nav className="header-nav" aria-label="Primary">
-        <a href="#evidence">Evidence</a>
-        <a href="#pilot">Pilot</a>
-        <a href="#method">Method</a>
-        <a href="#partners">Partners</a>
+      <nav
+        className={`header-nav ${menuOpen ? "is-open" : ""}`}
+        id="primary-navigation"
+        aria-label="Primary"
+      >
+        <a href="#evidence" onClick={closeMenu}>Evidence</a>
+        <a href="#pilot" onClick={closeMenu}>Pilot</a>
+        <a href="#method" onClick={closeMenu}>Method</a>
+        <a href="#partners" onClick={closeMenu}>Partners</a>
+        <a className="mobile-pilot-link" href="#contact" onClick={closeMenu}>
+          Discuss a pilot
+        </a>
       </nav>
       <div className="header-right">
         <SensoryControls />
@@ -68,6 +80,17 @@ export function Header() {
         >
           Discuss a pilot
         </a>
+        <button
+          className="mobile-menu-toggle"
+          type="button"
+          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+          aria-controls="primary-navigation"
+          aria-expanded={menuOpen}
+          title={menuOpen ? "Close navigation" : "Open navigation"}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span aria-hidden="true">{menuOpen ? "×" : "☰"}</span>
+        </button>
       </div>
     </header>
   );

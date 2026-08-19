@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useNarrativeState } from "./useNarrativeState";
 import { useExperience } from "../../providers/ExperienceProvider";
 import {
@@ -91,6 +91,20 @@ const CHAPTERS: Chapter[] = [
 export function Narrative() {
   const { activeIndex } = useNarrativeState(CHAPTERS.length);
   const { motionSuppressed } = useExperience();
+  const narrativeRef = useRef<HTMLDivElement>(null);
+  const [railVisible, setRailVisible] = useState(false);
+
+  useEffect(() => {
+    const element = narrativeRef.current;
+    if (!element || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setRailVisible(entry.isIntersecting),
+      { rootMargin: "-15% 0px -15% 0px" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   const jump = (index: number) => {
     document
@@ -99,20 +113,26 @@ export function Narrative() {
   };
 
   return (
-    <div className="narrative" aria-label="Listen, Detect, Review, Act">
-      <nav className="chapter-rail" aria-label="Narrative progress">
-        {CHAPTERS.map((c) => (
-          <button
-            key={c.index}
-            type="button"
-            aria-current={activeIndex === c.index}
-            onClick={() => jump(c.index)}
-          >
-            <span className="tick" aria-hidden="true" />
-            {c.kicker.split("—")[1]?.trim() ?? c.heading}
-          </button>
-        ))}
-      </nav>
+    <div
+      ref={narrativeRef}
+      className="narrative"
+      aria-label="Listen, Detect, Review, Act"
+    >
+      {railVisible && (
+        <nav className="chapter-rail is-visible" aria-label="Narrative progress">
+          {CHAPTERS.map((c) => (
+            <button
+              key={c.index}
+              type="button"
+              aria-current={activeIndex === c.index}
+              onClick={() => jump(c.index)}
+            >
+              <span className="tick" aria-hidden="true" />
+              {c.kicker.split("—")[1]?.trim() ?? c.heading}
+            </button>
+          ))}
+        </nav>
+      )}
 
       {CHAPTERS.map((c) => (
         <section

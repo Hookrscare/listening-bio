@@ -314,7 +314,7 @@
   backdrop-filter: blur(12px);
   color: var(--lime);
   font: 600 0.68rem/1 ui-monospace, monospace;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   align-self: flex-start;
 }
 .hud-badge .live-dot {
@@ -405,7 +405,7 @@
   flex-wrap: wrap;
 }
 .soundboard-header h3 {
-  font-size: clamp(2.2rem, 4.5vw, 4rem);
+  font-size: 4rem;
   font-weight: 400;
   margin: 8px 0;
   line-height: 0.95;
@@ -695,14 +695,14 @@
 .results-eyebrow {
   color: var(--lime);
   font: 600 0.68rem/1 ui-monospace, monospace;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 .savings-number {
-  font-size: clamp(2.4rem, 4vw, 3.8rem);
+  font-size: 3.8rem;
   font-weight: 600;
   color: #effff8;
   margin: 6px 0;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 .savings-badge {
   display: inline-block;
@@ -802,6 +802,21 @@
   }
   .station-hud {
     grid-template-columns: 1fr 1fr;
+  }
+  .soundboard-header h3 {
+    font-size: 3rem;
+  }
+  .savings-number {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .soundboard-header h3 {
+    font-size: 2.2rem;
+  }
+  .savings-number {
+    font-size: 2.4rem;
   }
 }
 

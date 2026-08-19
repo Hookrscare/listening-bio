@@ -246,13 +246,15 @@ function AcousticRippleRings() {
 function BioacousticSphere() {
   const sphereRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
+  const targetScaleVector = useMemo(() => new THREE.Vector3(1, 1, 1), []);
   const { energyRef } = useAudio();
   const { pointer, motionSuppressed } = useExperience();
 
   useFrame((_, delta) => {
     if (!sphereRef.current || motionSuppressed) return;
     const targetScale = 1 + energyRef.current * 0.35;
-    sphereRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+    targetScaleVector.setScalar(targetScale);
+    sphereRef.current.scale.lerp(targetScaleVector, 0.1);
     sphereRef.current.rotation.y += delta * 0.4 + pointer.current.vx * 0.1;
     sphereRef.current.rotation.x += delta * 0.2;
     if (meshRef.current) {
@@ -277,12 +279,10 @@ function BioacousticSphere() {
       {/* Inner glowing core */}
       <mesh>
         <sphereGeometry args={[0.55, 32, 32]} />
-        <meshStandardMaterial
+        <meshBasicMaterial
           color="#72f2c7"
-          emissive="#b7ff65"
-          emissiveIntensity={1.2}
-          roughness={0.1}
-          metalness={0.8}
+          transparent
+          opacity={0.78}
         />
       </mesh>
       {/* Orbital frequency ring */}

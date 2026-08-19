@@ -8,10 +8,10 @@ import { playBioacousticSound } from "../../lib/bioacousticSynth";
 const HeroCanvas = lazy(() => import("./HeroCanvas"));
 
 const HERO_SOUND_CHIPS = [
-  { id: "robin", label: "American Robin", freq: "2.4 kHz", color: "#b7ff65" },
-  { id: "thrush", label: "Wood Thrush", freq: "3.8 kHz", color: "#38bdf8" },
-  { id: "owl", label: "Great Horned Owl", freq: "320 Hz", color: "#ffcf6b" },
-  { id: "chorus", label: "Dawn Chorus Mix", freq: "Wideband biophony", color: "#72f2c7" },
+  { id: "robin", label: "Robin pattern", freq: "Synthesized" },
+  { id: "thrush", label: "Thrush pattern", freq: "Synthesized" },
+  { id: "owl", label: "Owl pattern", freq: "Synthesized" },
+  { id: "chorus", label: "Dawn chorus", freq: "Synthesized" },
 ];
 
 export function Hero() {
@@ -43,16 +43,15 @@ export function Hero() {
 
   return (
     <section className="hero" id="top" aria-label="Hero Section">
-      {/* Live Bioacoustic Telemetry Bar */}
-      <div className="hero-telemetry-bar" aria-label="Live Telemetry Feed">
+      <div className="hero-telemetry-bar" aria-label="Founding pilot scope">
         <span className="telemetry-live-dot" />
-        <span className="telemetry-item"><strong>LIVE TELEMETRY:</strong> 4 SITES ACTIVE</span>
-        <span className="telemetry-divider">/</span>
-        <span className="telemetry-item">1,420 HRS CONTINUOUS AUDIO</span>
-        <span className="telemetry-divider">/</span>
-        <span className="telemetry-item">94.2% INFERENCE CONFIDENCE</span>
-        <span className="telemetry-divider">/</span>
-        <span className="telemetry-badge">TNFD & CSRD ESRS E4 COMPLIANT</span>
+        <span className="telemetry-item"><strong>FOUNDING PILOT:</strong> PARTNER SELECTION OPEN</span>
+        <span className="telemetry-divider telemetry-secondary">/</span>
+        <span className="telemetry-item telemetry-secondary">3–5 SITES PLANNED</span>
+        <span className="telemetry-divider telemetry-secondary">/</span>
+        <span className="telemetry-item telemetry-secondary">50–100 WAV TARGET</span>
+        <span className="telemetry-divider telemetry-secondary">/</span>
+        <span className="telemetry-badge telemetry-secondary">FRAMEWORK-INFORMED EVIDENCE DRAFTS</span>
       </div>
 
       {/* 3D Visual Mesh */}
@@ -69,19 +68,19 @@ export function Hero() {
       <div className="hero-grid" aria-hidden="true" />
 
       <div className="hero-copy">
-        <p className="eyebrow hero-eyebrow-glow">Auditable Acoustic Biodiversity Monitoring & TNFD Intelligence</p>
+        <p className="eyebrow hero-eyebrow-glow">Reviewable acoustic biodiversity evidence</p>
         <h1 className="hero-headline-gradient">
           Nature leaves a signal.<br />
-          We turn it into <em>proof.</em>
+          We make it <em>reviewable.</em>
         </h1>
         <p className="hero-deck">
-          Listening.bio turns continuous environmental soundscapes into transparent, auditable biodiversity evidence
-          for corporate ESG compliance, land trusts, renewable energy, and scientific research.
+          Listening.bio connects environmental recordings to model provenance,
+          human decisions, mapped observations, and exportable evidence for land
+          managers, researchers, and environmental teams.
         </p>
 
-        {/* Live Audio Trigger Chips directly in the Hero */}
         <div className="hero-sound-chips-container">
-          <span className="chips-label">▶ Test Instant Bioacoustic Inference:</span>
+          <span className="chips-label">Play synthesized acoustic demonstrations</span>
           <div className="chips-row">
             {HERO_SOUND_CHIPS.map((chip) => (
               <button
@@ -104,7 +103,7 @@ export function Hero() {
             href="#enterprise-roi"
             onClick={() => track("hero_roi_cta_clicked", { location: "hero" })}
           >
-            Calculate Enterprise ROI <span aria-hidden="true">↗</span>
+            Explore pilot economics <span aria-hidden="true">↗</span>
           </a>
           <a className="secondary" href="#soundboard">
             Launch Audio Lab <span aria-hidden="true">↓</span>
@@ -112,26 +111,25 @@ export function Hero() {
         </div>
 
         <div className="hero-trust-row">
-          <span>✓ Raw WAV SHA-256 Hashes</span>
-          <span>✓ Expert Ecological Validation</span>
-          <span>✓ TNFD / CSRD Export Ready</span>
+          <span>✓ Source WAV SHA-256</span>
+          <span>✓ Append-only review history</span>
+          <span>✓ Framework-informed draft exports</span>
         </div>
       </div>
 
-      {/* Floating Holographic Cockpit Card */}
       <div className="hero-cockpit-card" aria-hidden="true">
         <div className="cockpit-header">
-          <span className="cockpit-title">SENSOR NODE NYC-01</span>
-          <span className="cockpit-status">ACTIVE STREAM</span>
+          <span className="cockpit-title">PILOT SCENARIO / NYC-01</span>
+          <span className="cockpit-status">DEMONSTRATION</span>
         </div>
         <div className="cockpit-stats">
           <div>
-            <span>COORDINATES</span>
-            <strong>40.7829° N, 73.9654° W</strong>
+            <span>PROPOSED SCOPE</span>
+            <strong>3–5 PARTNER-APPROVED SITES</strong>
           </div>
           <div>
-            <span>BIOPHONY INDEX</span>
-            <strong>NDSI: +0.86 (High)</strong>
+            <span>NEXT REQUIRED PROOF</span>
+            <strong>REVIEWED LOCAL FIELD DATA</strong>
           </div>
         </div>
         <div className="cockpit-mini-waveform">
@@ -146,6 +144,7 @@ export function Hero() {
           <span style={{ height: "95%" }} />
           <span style={{ height: "50%" }} />
         </div>
+        <span className="cockpit-preview-label">SYNTHESIZED SIGNAL PREVIEW</span>
       </div>
     </section>
   );
