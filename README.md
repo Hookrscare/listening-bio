@@ -106,6 +106,7 @@ Open `http://127.0.0.1:8000/app/` and select `Central Park Acoustic Biodiversity
 - [Partner outreach email drafts](docs/partner-outreach-drafts.md)
 - [Grant strategy and application draft](docs/grant-strategy-and-draft.md)
 - [Send-ready outreach and current micro-grant application](outreach/)
+- [Enterprise outreach safety gate and sourced account routes](outreach/enterprise/)
 
 The verified real-audio demo processed Xeno-canto `XC364638` in configured BirdNET mode and wrote its auditable result to `work/demo/XC364638-listening-bio-result.json`. The outreach drafts have not been sent, and grant eligibility still depends on an appropriate university, nonprofit, public-agency, land-trust, or incorporated small-business applicant.
 
@@ -151,6 +152,21 @@ The verified real-audio demo processed Xeno-canto `XC364638` in configured BirdN
 - `GET /v1/evidence/detections/{detection_id}/reviews` (`X-API-Key` required)
 
 The Evidence API accepts partner-generated model output, retains raw provenance, meters imports, and records reviews as an append-only history. Only API-key hashes are stored. See [docs/evidence-api-v1.md](docs/evidence-api-v1.md) for its security boundary and production gates.
+
+## Demonstration Evidence Draft
+
+Create a clearly labeled evidence draft from a PCM WAV without inventing model
+results or compliance status:
+
+```bash
+python scripts/generate_demo_evidence_package.py recording.wav \
+  --source-kind public_data \
+  --output-dir work/evidence-draft
+```
+
+An optional external JSON array of model candidates can be supplied with
+`--candidates`. Every imported candidate remains `unreviewed`; the generator
+never turns model output into a confirmed observation.
 
 ## Worker
 

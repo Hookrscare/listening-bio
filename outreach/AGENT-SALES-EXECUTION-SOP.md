@@ -1,117 +1,109 @@
-# Autonomous Sales Execution SOP (Standard Operating Procedure)
+# Controlled Enterprise Outreach SOP
 
-This is a deterministic, step-by-step operational playbook for executing client prospecting, cold outreach campaigns, sample audit delivery, and closing commercial pilots for **listening.bio**.
+This procedure governs research, drafting, demonstrations, and follow-up for
+Listening.bio. It is not an authorization for autonomous cold-email sending.
 
----
+## Authority boundary
 
-## Autonomous Execution Workflow
+An agent may:
 
-```mermaid
-graph TD
-    S1[Phase 1: Lead Prospecting & Data Enrichment] --> S2[Phase 2: Account Research & Personalization]
-    S2 --> S3[Phase 3: Multi-Touch Outreach Cadence]
-    S3 --> S4[Phase 4: Complimentary Sample Audit Execution]
-    S4 --> S5[Phase 5: 15-Minute Live Demo & Discovery Call]
-    S5 --> S6[Phase 6: Proposal Delivery & Retainer Closing]
-```
+- Research organizations and cite authoritative public sources.
+- Draft account notes, routing inquiries, and follow-ups.
+- Prepare a demonstration from public or client-authorized audio.
+- Record campaign status and unanswered questions.
 
----
+An agent may not:
 
-## Phase 1: Lead Prospecting & Data Enrichment
+- Guess a person's identity, title, address, project, or regulatory need.
+- Send a new enterprise campaign without Rodrigo's immediate approval.
+- Upload client audio without written authorization and handling instructions.
+- Describe model candidates as confirmed observations.
+- Promise pricing, savings, performance, compliance, approval, or turnaround.
+- Create fake case studies, reviewers, deployments, customers, or results.
 
-### Search Criteria (LinkedIn Sales Navigator / Apollo.io)
-1. **Industry Filters**: *Renewable Energy Semiconductor Manufacturing*, *Environmental Services*, *Forestry & Logging*, *Nonprofit Organization Management*.
-2. **Headcount**: 50–5,000 employees.
-3. **Geography**: United States, Canada, European Union, United Kingdom.
-4. **Target Job Titles**:
-   * `"Director of Environmental Permitting"`
-   * `"VP Sustainability"`
-   * `"Principal Ecologist"`
-   * `"Head of Biodiversity"`
-   * `"Director of Wildlife Permitting"`
-   * `"Lead Bioacoustician"`
-   * `"Head of Nature Tech"`
+Existing partner follow-up automation is governed separately by its approved
+recipient list and message limits. It does not authorize enterprise prospecting.
 
-### Verification Checklist Before Sending
-- [ ] Email address verified with SMTP ping / zero-bounce tool.
-- [ ] Account has active solar, wind, timberland, or conservation projects.
-- [ ] Lead has not been contacted within the last 60 days.
+## 1. Account research
 
----
+1. Start with an account from `POTENTIAL-CLIENTS-AND-TARGET-LIST.md`.
+2. Verify the current organization and relevant program on its official site.
+3. Record the source URL and date in `enterprise/account-research.csv`.
+4. Verify a named person only from an authoritative public source. Otherwise use
+   the official contact route and request routing.
+5. Check the sent log before drafting any follow-up.
 
-## Phase 2: Account Research & Personalization
+## 2. Message approval
 
-Before firing Touch 1, the agent must extract two dynamic variables:
-1. `{{project_name}}`: Name of an active project, wind/solar site, or nature preserve managed by the target account.
-2. `{{target_species}}`: Local species of regulatory interest (e.g. Indiana Bat, Golden-winged Warbler, Wood Thrush, Desert Tortoise).
+1. Use `enterprise/SAFE-OUTREACH-SEQUENCES.md`.
+2. Replace bracketed text only with sourced facts.
+3. Check every statement against `enterprise/CLAIM-REGISTER.md`.
+4. Present the final recipient, subject, body, sources, and reason for contact to
+   Rodrigo.
+5. Send only after explicit approval for that message or approved batch.
 
----
+Default to asynchronous written coordination. Do not ask for a call in the first
+message.
 
-## Phase 3: Multi-Touch Outreach Cadence
+## 3. Demonstration intake
 
-| Day | Channel | Action | Template |
-| :--- | :--- | :--- | :--- |
-| **Day 1** | Email | Send Touch 1 (Initial Hook + Free 24h Sample Audit Offer) | See `VERTICAL-SALES-KITS.md` for specific vertical |
-| **Day 1** | LinkedIn | Send connection request with personalized note (under 200 chars) | `"Hi [Name], saw your work on [Project]. We run autonomous acoustic wildlife surveys for TNFD/EIA compliance. Would love to connect."` |
-| **Day 4** | Email | Send Touch 2 (Case study metrics + ROI Calculator link) | Reference 68% cost reduction & Central Park pilot data |
-| **Day 8** | Email | Send Touch 3 (Executive 1-page compliance spec & break-up) | Share data sovereignty terms & sample TNFD export |
+Before accepting prospect audio, obtain written confirmation of:
 
----
+- Authority to share and process the files
+- Intended evaluation purpose
+- Location and sensitive-species handling rules
+- Human-speech/privacy expectations
+- Retention and deletion date
+- Whether results may be discussed or published
 
-## Phase 4: Complimentary Sample Audit Execution
+Public and synthetic inputs remain labeled as such.
 
-When a prospect replies with interest or uploads a sample audio clip:
+## 4. Evidence draft workflow
+
+The application flow is:
+
+1. `POST /audio-files/upload`
+2. `POST /processing-jobs/{job_id}/run`
+3. Review model candidates in the application
+4. Export source-linked data or framework-informed drafts
+
+Available draft exports include:
+
+- `GET /exports/evidence-package.md?project_id={project_id}`
+- `GET /exports/tnfd-evidence-draft.json?project_id={project_id}`
+- `GET /exports/esrs-e4-evidence-draft.json?project_id={project_id}`
+
+For a metadata-only demonstration that creates no detections:
 
 ```bash
-# 1. Ingest client sample WAV via API or script
-curl -X POST "http://localhost:8000/audio-files/upload" \
-  -F "site_id=site_client_demo" \
-  -F "file=@client_sample.wav"
-
-# 2. Run BirdNET inference pipeline
-curl -X POST "http://localhost:8000/processing-jobs/{job_id}/run-birdnet"
-
-# 3. Export audit-ready TNFD and Evidence packages
-curl -s "http://localhost:8000/exports/tnfd-biodiversity.json?project_id={proj_id}" > tnfd_audit.json
-curl -s "http://localhost:8000/exports/evidence-package.md?project_id={proj_id}" > evidence_package.md
+python scripts/generate_demo_evidence_package.py recording.wav \
+  --source-kind client_authorized \
+  --output-dir work/evidence-draft
 ```
 
-* **Deliverable**: Email back a 1-page PDF summary containing the spectrogram visual, detected species list with confidence intervals, and the download link to the interactive web demo.
+The deliverable must state that candidates are unreviewed and that the package is
+not a disclosure, certification, assurance opinion, regulatory submission, or
+compliance determination.
 
----
+## 5. Pilot proposal gate
 
-## Phase 5: 15-Minute Live Demo Call Playbook
+Do not issue a commercial statement of work until the enterprise-readiness gates
+in `docs/enterprise-readiness-playbook.md` are resolved for the engagement,
+including reviewer, permissions, protocol, data terms, insurance, acceptance
+criteria, and measured cost assumptions.
 
-### Agenda
-1. **Minutes 0–3: Pain Discovery & Context Setting**:
-   * *"How are you currently managing wildlife survey schedules and nocturnal/crepuscular observation gaps?"*
-   * *"What are your main regulatory requirements for upcoming permitting milestones (TNFD, USFWS, CSRD)?"*
-2. **Minutes 3–8: Live Product Demonstration**:
-   * Open `https://hookrscare.github.io/listening-bio/`.
-   * Trigger the 3D Taxonomic Galaxy and play candidate species calls.
-   * Demonstrate the **Interactive Evidence Workspace** showing how every detection links directly to raw audio with cryptographic SHA-256 hashes.
-   * Show one-click **TNFD / CSRD JSON & CSV Exports**.
-3. **Minutes 8–12: Interactive ROI Financial Calculator**:
-   * Open `#enterprise-roi` on the site.
-   * Plug in client's exact project acreage and sensor count.
-   * Show direct dollar savings compared to manual consulting day-rates.
-4. **Minutes 12–15: Closing the 30-Day Commercial Pilot**:
-   * *"We typically start with a 30-day proof-of-concept pilot across 3–5 stations ($3,500 – $7,500 total). We deploy the sensors, run BirdNET classification, provide certified reviewer sign-off, and deliver a full audit report. If that sounds aligned, I can send over a 1-page SOW today."*
+## 6. Campaign records
 
----
+For every action, record:
 
-## Phase 6: Commercial Pilot-to-Retainer Conversion
+- Account and official source
+- Recipient verification method
+- Approval date
+- Exact message sent
+- Timestamp and channel
+- Reply category
+- Follow-up due date
+- Demo input authorization and deletion date
 
-* **Post-Pilot Deliverable (Day 30)**: Present the final **Verified Biodiversity Audit Report**.
-* **Retainer Conversion Offer**: Roll 100% of the pilot fee as a credit toward an **Annual Monitoring Retainer** ($1,200 – $2,500 / month).
-
----
-
-## Phase 7: Objection Handling Matrix
-
-| Prospect Objection | Root Concern | Approved Response |
-| :--- | :--- | :--- |
-| **"We already work with ecological consulting firms."** | Reluctance to change vendors. | *"We don't replace your ecological consultants—in fact, leading consultancies use our platform to process audio 5x faster. We provide the hardware and cloud intelligence so your biologists spend time on high-value review rather than manual audio listening."* |
-| **"AI bird identification isn't reliable enough for legal compliance."** | Fear of false positives / regulatory rejection. | *"We completely agree. Under our governance principles, automated ML detections are strictly treated as candidate evidence. Every compliance export requires secondary review and digital sign-off by a qualified ornithologist before submission."* |
-| **"Who owns our raw audio data? Will it be used to train public AI models?"** | Confidentiality / Data Sovereignty. | *"You retain 100% exclusive intellectual property ownership over all raw WAV recordings and GPS coordinates. We maintain strict enterprise data sovereignty: your data is never used to train third-party commercial models without written authorization."* |
-| **"We don't have budget for a new software platform this quarter."** | Financial inertia. | *"That's why we structured our initial 30-day pilot as a low-cost $3,500 field proof-of-concept, often funded directly out of site survey or contingency budgets rather than software line items."* |
+No response is not consent. Stop after the approved cadence and never reply to a
+bounce, automated acknowledgment, unsubscribe request, or do-not-reply address.
