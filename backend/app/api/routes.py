@@ -875,17 +875,18 @@ def export_evidence_package_markdown(project_id: str, db: Session = Depends(get_
     )
 
 
-@router.get("/exports/tnfd-biodiversity.json")
-def export_tnfd_biodiversity_json(project_id: str, db: Session = Depends(get_db)) -> Response:
+@router.get("/exports/tnfd-evidence-draft.json")
+def export_tnfd_evidence_draft_json(project_id: str, db: Session = Depends(get_db)) -> Response:
     package = _project_evidence_package(project_id, db)
     summary = package.get("summary") or {}
     metrics = package.get("metrics") or {}
     readiness = package.get("readiness") or {}
 
     tnfd_payload = {
-        "framework": "TNFD v1.0 Nature-Related Financial Disclosures",
-        "standard_reference": "LEAP (Locate, Evaluate, Assess, Prepare)",
-        "disclosure_metric": "State of Nature - Acoustic Species Richness & Bioacoustic Integrity",
+        "document_type": "prototype_evidence_draft",
+        "framework_reference": "TNFD recommendations and LEAP approach",
+        "compliance_status": "not_assessed",
+        "disclaimer": "This prototype organizes supporting evidence only. It is not a TNFD disclosure, assurance opinion, certification, or compliance determination.",
         "project": package.get("project"),
         "evidence_integrity": {
             "evidence_level": readiness.get("evidence_level"),
@@ -907,21 +908,22 @@ def export_tnfd_biodiversity_json(project_id: str, db: Session = Depends(get_db)
     return Response(
         content=json.dumps(tnfd_payload, indent=2),
         media_type="application/json",
-        headers={"Content-Disposition": 'attachment; filename="tnfd-biodiversity-disclosure.json"'},
+        headers={"Content-Disposition": 'attachment; filename="tnfd-evidence-draft.json"'},
     )
 
 
-@router.get("/exports/esrs-compliance.json")
-def export_esrs_compliance_json(project_id: str, db: Session = Depends(get_db)) -> Response:
+@router.get("/exports/esrs-e4-evidence-draft.json")
+def export_esrs_e4_evidence_draft_json(project_id: str, db: Session = Depends(get_db)) -> Response:
     package = _project_evidence_package(project_id, db)
     esrs_payload = {
-        "standard": "CSRD - ESRS E4 Biodiversity and Ecosystems",
-        "disclosure_topic": "E4-4 Impact metrics on biodiversity and ecosystems change",
+        "document_type": "prototype_evidence_draft",
+        "framework_reference": "CSRD ESRS E4 Biodiversity and Ecosystems",
+        "compliance_status": "not_assessed",
+        "disclaimer": "This prototype organizes supporting evidence only. It is not an ESRS disclosure, assurance opinion, certification, or compliance determination.",
         "evidence_package": package,
     }
     return Response(
         content=json.dumps(esrs_payload, indent=2),
         media_type="application/json",
-        headers={"Content-Disposition": 'attachment; filename="esrs-e4-compliance.json"'},
+        headers={"Content-Disposition": 'attachment; filename="esrs-e4-evidence-draft.json"'},
     )
-

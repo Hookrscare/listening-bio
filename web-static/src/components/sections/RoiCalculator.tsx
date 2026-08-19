@@ -24,16 +24,18 @@ export function RoiCalculator() {
   const netSavings = Math.max(0, manualTotalCost - listeningBioPlatformFee);
   const savingsPercent = Math.round((netSavings / (manualTotalCost || 1)) * 100);
   const totalAudioHours = Math.round(sensors * months * 30 * 8); // 8 recording hrs/day
-  const speciesObservationMultipier = "14.2x";
+  const monitoringHoursPerManualVisit = 8;
+  const manualObservationHours = sensors * manualVisitsPerSensor * monitoringHoursPerManualVisit;
+  const coverageRatio = Math.max(1, Math.round(totalAudioHours / Math.max(1, manualObservationHours)));
 
   return (
     <section className="section roi-calculator-section" id="enterprise-roi" aria-labelledby="roi-title">
       <div className="section-header">
-        <p className="eyebrow">Enterprise B2B & TNFD Compliance</p>
-        <h2 id="roi-title">Calculate continuous<br />monitoring <em>ROI.</em></h2>
+        <p className="eyebrow">Pilot planning scenario</p>
+        <h2 id="roi-title">Explore continuous<br />monitoring <em>costs.</em></h2>
         <p className="section-deck">
-          Compare traditional episodic field surveys against continuous passive acoustic monitoring (PAM) with
-          auditable model provenance and TNFD/CSRD reporting.
+          Adjust a transparent, illustrative scenario comparing episodic field visits with passive acoustic
+          monitoring. Replace these assumptions with partner-approved costs before making a funding decision.
         </p>
       </div>
 
@@ -114,9 +116,9 @@ export function RoiCalculator() {
         {/* Results Matrix */}
         <div className="calculator-results">
           <div className="savings-hero-box">
-            <span className="results-eyebrow">ESTIMATED ANNUAL SAVINGS</span>
+            <span className="results-eyebrow">ILLUSTRATIVE COST DIFFERENCE</span>
             <div className="savings-number">${netSavings.toLocaleString()}</div>
-            <span className="savings-badge">{savingsPercent}% Cost Reduction vs. Manual Surveys</span>
+            <span className="savings-badge">{savingsPercent}% in this editable scenario</span>
           </div>
 
           <div className="metrics-summary-grid">
@@ -136,25 +138,36 @@ export function RoiCalculator() {
             </div>
 
             <div className="metric-cell">
-              <span>Observation Density</span>
-              <strong>{speciesObservationMultipier} more data</strong>
+              <span>Potential recording coverage</span>
+              <strong>{coverageRatio}x the assumed visit hours</strong>
             </div>
           </div>
 
           <div className="compliance-readiness-banner">
             <div className="compliance-icon">✓</div>
             <div>
-              <strong>TNFD & CSRD (ESRS E4) Audit Ready</strong>
-              <p>Generates verifiable evidence chains with raw WAV hashes and scientific human reviews.</p>
+              <strong>Evidence-package prototype</strong>
+              <p>Supports provenance and review records that partners may use when preparing their own disclosures. It is not a certification or compliance determination.</p>
             </div>
           </div>
+
+          <details className="scenario-assumptions">
+            <summary>Scenario assumptions</summary>
+            <p>
+              Manual comparison: {manualVisitsPerSensor} visits per station at ${manualCostPerVisit.toLocaleString()}
+              per visit, plus $4,500 for coordination and reporting. Platform scenario: $49 per station-month,
+              $100 annual equipment allowance per station, and $1,200 for setup and reporting. Recording coverage
+              assumes eight hours per station-day. Taxes, travel, scientific review, hardware purchases, and partner
+              overhead may change the result.
+            </p>
+          </details>
 
           <div className="roi-actions">
             <a
               className="primary"
               href="mailto:rodrigo@listening.bio?subject=Enterprise%20ROI%20and%20TNFD%20Pilot%20Proposal"
             >
-              Request Enterprise Proposal <span>↗</span>
+              Request a scoped pilot estimate <span>↗</span>
             </a>
           </div>
         </div>

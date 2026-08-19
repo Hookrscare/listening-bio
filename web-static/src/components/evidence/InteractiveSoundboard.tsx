@@ -4,13 +4,7 @@ import { SPECIES_PRESETS, playBioacousticSound, type SpeciesPreset } from "../..
 export function InteractiveSoundboard() {
   const [selectedSpecies, setSelectedSpecies] = useState<SpeciesPreset>(SPECIES_PRESETS[0]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [reviewState, setReviewState] = useState<Record<string, string>>({
-    robin: "confirmed",
-    cardinal: "confirmed",
-    thrush: "uncertain",
-    owl: "unreviewed",
-    chorus: "confirmed",
-  });
+  const [reviewState, setReviewState] = useState<Record<string, string>>({});
   const [confidenceFilter, setConfidenceFilter] = useState(0.5);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -122,10 +116,11 @@ export function InteractiveSoundboard() {
     <div className="interactive-soundboard-container" id="soundboard">
       <div className="soundboard-header">
         <div>
-          <span className="eyebrow">Interactive Live Audio Lab</span>
-          <h3>Bioacoustic Species Soundboard</h3>
+          <span className="eyebrow">Synthesized audio demonstration</span>
+          <h3>Bioacoustic Pattern Soundboard</h3>
           <p className="subtitle">
-            Experience real-time frequency analysis and transparent verification across field species.
+            Explore generated frequency patterns inspired by species vocalizations. These sounds and scores are
+            interface examples, not recordings, BirdNET results, or ecological evidence.
           </p>
         </div>
 
@@ -195,11 +190,11 @@ export function InteractiveSoundboard() {
             </div>
             <div className="hud-metric">
               <span>INFERENCE MODEL</span>
-              <strong>BirdNET v2.4 Native</strong>
+              <strong>None — synthesized demo</strong>
             </div>
             <div className="hud-metric">
               <span>PROVENANCE</span>
-              <strong className="verified-text">Auditable WAV</strong>
+              <strong className="verified-text">Generated in browser</strong>
             </div>
           </div>
 
@@ -214,12 +209,12 @@ export function InteractiveSoundboard() {
                 className="primary-play-btn"
                 onClick={() => handlePlay(selectedSpecies)}
               >
-                {isPlaying ? "■ Playing Biophony Stream..." : `▶ Play ${selectedSpecies.name}`}
+                {isPlaying ? "■ Playing synthesized pattern..." : `▶ Play ${selectedSpecies.name} pattern`}
               </button>
             </div>
 
             <div className="human-review-actions">
-              <span className="review-label">Expert Human Verification:</span>
+              <span className="review-label">Try the review controls:</span>
               <div className="btn-group">
                 <button
                   type="button"

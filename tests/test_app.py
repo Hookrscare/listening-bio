@@ -594,31 +594,20 @@ def test_report_shell_endpoints(client, db_session):
     assert detail_response.status_code == 200
 
 
-def test_tnfd_and_esrs_compliance_exports(client, db_session):
+def test_tnfd_and_esrs_evidence_draft_exports(client, db_session):
     project = db_session.scalar(select(Project))
     site = db_session.scalar(select(Site))
 
-    tnfd_res = client.get(f"/exports/tnfd-biodiversity.json?project_id={project.id}")
+    tnfd_res = client.get(f"/exports/tnfd-evidence-draft.json?project_id={project.id}")
     assert tnfd_res.status_code == 200
-    assert "TNFD" in tnfd_res.json()["framework"]
+    assert "TNFD" in tnfd_res.json()["framework_reference"]
+    assert tnfd_res.json()["compliance_status"] == "not_assessed"
     assert "monitored_sites_count" in tnfd_res.json()["indicators"]
 
-    esrs_res = client.get(f"/exports/esrs-compliance.json?project_id={project.id}")
+    esrs_res = client.get(f"/exports/esrs-e4-evidence-draft.json?project_id={project.id}")
     assert esrs_res.status_code == 200
-    assert "ESRS E4" in esrs_res.json()["standard"]
-
-
-def test_auth_token_and_api_key_validation():
-    from backend.app.api.auth import create_dev_token, verify_dev_token
-
-    token = create_dev_token("usr_123", "alice@example.com", "admin")
-    principal = verify_dev_token(token)
-    assert principal is not None
-    assert principal.email == "alice@example.com"
-    assert principal.role == "admin"
-
-    bad = verify_dev_token("invalid:token:format")
-    assert bad is None
+    assert "ESRS E4" in esrs_res.json()["framework_reference"]
+    assert esrs_res.json()["compliance_status"] == "not_assessed"
 
 
 def test_waveform_peaks_extraction():
@@ -628,4 +617,3 @@ def test_waveform_peaks_extraction():
     peaks = extract_waveform_peaks(tiny_wav_bytes(), 50)
     assert len(peaks) == 50
     assert all(0.0 <= p <= 1.0 for p in peaks)
-

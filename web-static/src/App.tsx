@@ -52,7 +52,7 @@ export function App() {
           {/* Verifiable Provenance Evidence Demo */}
           <EvidenceDemo />
 
-          {/* Enterprise B2B ROI & TNFD Compliance Calculator */}
+          {/* Transparent pilot planning scenario */}
           <RoiCalculator />
 
           <Pilot />

@@ -277,7 +277,7 @@ export function SpeciesConstellation3D() {
       <div className="constellation-overlay">
         <div className="hud-badge">
           <span className="live-dot" />
-          <span>REAL-TIME 3D TAXONOMIC TOPOLOGY</span>
+          <span>INTERACTIVE DEMONSTRATION TOPOLOGY</span>
         </div>
 
         {activeNode && (
@@ -300,7 +300,7 @@ export function SpeciesConstellation3D() {
                 className="play-node-btn"
                 onClick={() => handlePlaySound(activeNode)}
               >
-                {playing === activeNode.name ? "▶ Synthesizing Audio..." : "▶ Listen to Bioacoustic Call"}
+                {playing === activeNode.name ? "▶ Synthesizing pattern..." : "▶ Play synthesized pattern"}
               </button>
             </div>
           </div>

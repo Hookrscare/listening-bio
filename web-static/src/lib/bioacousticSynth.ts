@@ -1,5 +1,5 @@
-// Web Audio bioacoustic synthesis engine for instant multi-species soundboard demonstration.
-// Accurately emulates acoustic frequencies, FM modulations, and chirp contours for field species.
+// Web Audio synthesis for an explicitly non-scientific interface demonstration.
+// Patterns are species-inspired and must not be presented as recordings or model evidence.
 
 export interface SpeciesPreset {
   id: string;
